@@ -9,22 +9,49 @@ const SALT_ROUNDS = 10;
  * A senha é armazenada como hash para segurança.
  * Retorna uma Promise que resolve com o id do usuário recém-criado.
  */
-function createUser({ name, birthdate, email, password }) {
+function createUser({ name, birthdate, email, password, phone }) {
     return new Promise((resolve, reject) => {
-        if (!name || !birthdate || !email || !password) {
-            return reject(new Error('name, birthdate, email e password são obrigatórios'));
+      // 1. Validar campos obrigatórios (SCRUM-12)
+        if (!name || !birthdate || !email || !password || !phone) {
+            return reject(
+            new Error(
+                "name, birthdate, email, password e phone são obrigatórios",
+            ));
         }
+
+        // 2. Validação de Email (SCRUM-12) - Verifica se tem o formato texto@texto.texto
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return reject(new Error("Formato de e-mail inválido."));
+        }
+
+        // 3. Validação de Senha (SCRUM-12) - Regra mínima de segurança
+        if (password.length < 6) {
+            return reject(
+                new Error('A senha deve ter pelo menos 6 caracteres.'));
+        }
+
+        // 4. Criptografia e salvamento
         bcrypt.hash(password, SALT_ROUNDS, (err, hash) => {
-            if (err) return reject(err);
-            db.run(
-                `INSERT INTO users (name, birthdate, email, password) VALUES (?, ?, ?, ?)`,
-                [name, birthdate, email, hash],
-                function (err) {
-                    if (err) return reject(err);
-                    resolve({ id: this.lastID });
+        if (err) return reject(
+            new Error('Erro ao processar a senha.'));
+        db.run(
+          `INSERT INTO users (name, birthdate, email, password, phone) VALUES (?, ?, ?, ?, ?)`,
+          [name, birthdate, email, hash, phone],
+          function (err) {
+            if (err) {
+                    if (err.message.includes('UNIQUE')) {
+                        return reject(
+                            new Error('Este e-mail já está cadastrado no sistema.'));
+                    }
+                    return reject(
+                        new Error('Erro ao cadastrar usuário: ' + err.message));
                 }
-            );
-        });
+
+            resolve({ id: this.lastID, message: "Usuário cadastrado com sucesso!" });
+          },
+        );
+      });
     });
 }
 

@@ -12,16 +12,15 @@ app.use(express.json());
 
 // 1. Rota para Criar Conta (Cadastro)
 app.post("/register", async (req, res) => {
-  // Atenção: agora usamos birthdate (data de nascimento) em vez de age
-  const { name, birthdate, email, password } = req.body;
+  const { name, birthdate, email, password, phone } = req.body;
 
   try {
-    // Chama a função que a IA criou no seu controller
     const newUser = await userController.createUser({
       name,
       birthdate,
       email,
       password,
+      phone,
     });
     res
       .status(201)
@@ -53,7 +52,6 @@ app.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Usa a função da IA para checar se o usuário realmente existe antes de gerar o token
     const user = await userController.getUserByEmail(email);
 
     if (!user) {
@@ -98,6 +96,7 @@ app.post('/reset-password', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
 /*
 // 5. Rota para Solicitar Corrida
 app.post('/ride/request', async (req, res) => {
@@ -163,47 +162,65 @@ app.post('/ride/request', async (req, res) => {
     } = req.body; 
 
     try {
-        // SE NÃO ENVIOU AS COORDENADAS DE ORIGEM, DESCOBRE PELO NOME!
-        if (!pickupLat || !pickupLng) {
-            console.log(`Buscando coordenadas para origem: ${pickupAddress}...`);
-            const pickupCoords = await utils.geocodeAddress(pickupAddress);
-            pickupLat = pickupCoords.lat;
-            pickupLng = pickupCoords.lng;
-        }
+      // SE NÃO ENVIOU AS COORDENADAS DE ORIGEM, DESCOBRE PELO NOME!
+      if (!pickupLat || !pickupLng) {
+        console.log(`Buscando coordenadas para origem: ${pickupAddress}...`);
+        const pickupCoords = await utils.geocodeAddress(pickupAddress);
+        pickupLat = pickupCoords.lat;
+        pickupLng = pickupCoords.lng;
+      }
 
-        // SE NÃO ENVIOU AS COORDENADAS DE DESTINO, DESCOBRE PELO NOME!
-        if (!dropoffLat || !dropoffLng) {
-            console.log(`Buscando coordenadas para destino: ${dropoffAddress}...`);
-            const dropoffCoords = await utils.geocodeAddress(dropoffAddress);
-            dropoffLat = dropoffCoords.lat;
-            dropoffLng = dropoffCoords.lng;
-        }
+      // SE NÃO ENVIOU AS COORDENADAS DE DESTINO, DESCOBRE PELO NOME!
+      if (!dropoffLat || !dropoffLng) {
+        console.log(`Buscando coordenadas para destino: ${dropoffAddress}...`);
+        const dropoffCoords = await utils.geocodeAddress(dropoffAddress);
+        dropoffLat = dropoffCoords.lat;
+        dropoffLng = dropoffCoords.lng;
+      }
 
-        // 1. Calcula a distância matemática entre os pontos
-        const calculatedDistance = utils.calculateDistance(pickupLat, pickupLng, dropoffLat, dropoffLng);
+      // 1. Calcula a distância matemática entre os pontos
+      const calculatedDistance = utils.calculateDistance(
+        pickupLat,
+        pickupLng,
+        dropoffLat,
+        dropoffLng
+      );
 
-        // 2. Calcula o preço com base na distância e na categoria do carro
-        const calculatedPrice = utils.calculatePrice(calculatedDistance, rideType);
+      // 2. Estima o tempo da viagem
+      const estimatedTime = utils.estimateTime(calculatedDistance);
 
-        // 3. Salva no banco de dados
-        const newRide = await rideController.requestRide({
-            userId, rideType, 
-            price: calculatedPrice,       
-            distance: calculatedDistance, 
-            pickupAddress, pickupLat, pickupLng, 
-            dropoffAddress, dropoffLat, dropoffLng
-        });
-        
-        res.status(201).json({ 
-            message: "Corrida solicitada com sucesso! Aguardando PIX.", 
-            ride: newRide,
-            distanceKm: calculatedDistance,
-            priceBRL: calculatedPrice,
-            debugCoords: { // Mostramos as coordenadas só para você ver a mágica funcionando
-                pickup: { lat: pickupLat, lng: pickupLng },
-                dropoff: { lat: dropoffLat, lng: dropoffLng }
-            }
-        });
+      // 3. Calcula o preço com base na distância e na categoria da corrida
+      const calculatedPrice = utils.calculatePrice(
+        calculatedDistance,
+        estimatedTime,
+        rideType
+      );
+
+      // 4. Salva no banco de dados
+      const newRide = await rideController.requestRide({
+        userId,
+        rideType,
+        price: calculatedPrice,
+        distance: calculatedDistance,
+        pickupAddress,
+        pickupLat,
+        pickupLng,
+        dropoffAddress,
+        dropoffLat,
+        dropoffLng
+      });
+
+      res.status(201).json({
+        message: "Corrida solicitada com sucesso! Aguardando PIX.",
+        ride: newRide,
+        distanceKm: calculatedDistance,
+        priceBRL: calculatedPrice,
+        estimatedTimeMinutes: estimatedTime,
+        debugCoords: {
+          pickup: { lat: pickupLat, lng: pickupLng },
+          dropoff: { lat: dropoffLat, lng: dropoffLng },
+        },
+      });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -229,9 +246,9 @@ app.post('/ride/cancel', async (req, res) => {
 
 // 7. Rota para Cadastrar Condutor
 app.post('/driver/register', async (req, res) => {
-    const { name, email, password, cnh } = req.body;
+    const { name, email, password, cnh, phone } = req.body;
     try {
-        const newDriver = await driverController.createDriver({ name, email, password, cnh });
+        const newDriver = await driverController.createDriver({ name, email, password, cnh, phone });
         res.status(201).json({ message: "Motorista cadastrado com sucesso!", driverId: newDriver.id });
     } catch (error) {
         res.status(400).json({ error: error.message });

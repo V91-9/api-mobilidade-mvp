@@ -6,16 +6,16 @@ const SALT_ROUNDS = 10;
 /**
  * Cadastra um novo motorista.
  */
-function createDriver({ name, email, password, cnh }) {
+function createDriver({ name, email, password, cnh, phone }) {
   return new Promise((resolve, reject) => {
-    if (!name || !email || !password || !cnh) {
+    if (!name || !email || !password || !cnh || !phone) {
       return reject(new Error("Todos os campos são obrigatórios."));
     }
     bcrypt.hash(password, SALT_ROUNDS, (err, hash) => {
       if (err) return reject(err);
       db.run(
-        `INSERT INTO drivers (name, email, password, cnh) VALUES (?, ?, ?, ?)`,
-        [name, email, hash, cnh],
+        `INSERT INTO drivers (name, email, password, cnh, phone) VALUES (?, ?, ?, ?, ?)`,
+        [name, email, hash, cnh, phone],
         function (err) {
           if (err)
             return reject(

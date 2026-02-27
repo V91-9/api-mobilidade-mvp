@@ -31,21 +31,31 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 /**
  * Calcula o valor da corrida com base na distância e no tipo de veículo (Função 4).
  */
-function calculatePrice(distanceKm, rideType) {
+function calculatePrice(distanceKm, timeMinutes, rideType) {
   // Tabela de preços base do seu MVP (pode ser ajustada)
   const rates = {
-    moto: { base: 3.0, perKm: 1.5 },
-    carro_comum: { base: 5.0, perKm: 2.2 },
-    carro_luxo: { base: 8.0, perKm: 3.5 },
+    moto: { base: 3.0, perKm: 1.5, perMin: 0.2 },
+    carro_comum: { base: 5.0, perKm: 2.2, perMin: 0.3 },
+    carro_luxo: { base: 8.0, perKm: 3.5, perMin: 0.5 },
   };
 
   // Se o tipo não existir, usa carro comum como padrão de segurança
   const rate = rates[rideType] || rates["carro_comum"];
 
-  const total = rate.base + distanceKm * rate.perKm;
+  const total = rate.base + distanceKm * rate.perKm + timeMinutes * rate.perMin;
 
-  // Retorna o valor em Reais (com 2 casas decimais)
   return parseFloat(total.toFixed(2));
+}
+
+/**
+ * Estima o tempo da viagem em minutos com base na distância.
+ */
+function estimateTime(distanciaKm) {
+    const velocidadeMediaKmh = 30; // Velocidade média no trânsito urbano
+    const tempoHoras = distanciaKm / velocidadeMediaKmh;
+    const tempoMinutos = Math.round(tempoHoras * 60);
+    
+    return tempoMinutos > 0 ? tempoMinutos : 1; 
 }
 
 /**
@@ -89,5 +99,6 @@ async function geocodeAddress(address) {
 module.exports = {
   calculateDistance,
   calculatePrice,
+  estimateTime,
   geocodeAddress, // TEMPORARIO, MELHOR FAZER NO FRONTEND!!!!!!!!!!!!
 };

@@ -25,6 +25,7 @@ db.serialize(() => {
             birthdate TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
+            phone TEXT NOT NULL,
             reset_token TEXT
         )
     `);
@@ -36,7 +37,8 @@ db.serialize(() => {
             name TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            cnh TEXT UNIQUE NOT NULL
+            cnh TEXT UNIQUE NOT NULL,
+            phone TEXT NOT NULL
         )
     `);
 
