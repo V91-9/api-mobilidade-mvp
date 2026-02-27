@@ -22,4 +22,4 @@ Uma API RESTful robusta desenvolvida em Node.js para simular o backend de um apl
 
 1. Clone este repositório:
    ```bash
-   git clone [https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git](https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git)
+   git clone [https://github.com/V91-1/api-mobilidade-mvp.git](https://github.com/V91-1/api-mobilidade-mvp.git)
