@@ -153,7 +153,7 @@ app.post('/ride/request', async (req, res) => {
 });
 */
 
-// 5. Rota para Solicitar Corrida (AGORA COM GEOCODING AUTOMÁTICO)
+// 5. Rota para Solicitar Corrida
 app.post('/ride/request', async (req, res) => {
     let { 
         userId, rideType, 
@@ -268,11 +268,60 @@ app.post('/vehicle/add', async (req, res) => {
 
 // 9. Rota para Motorista Aceitar a Corrida
 app.post('/ride/accept', async (req, res) => {
-    const { rideId, driverId, vehicleId } = req.body;
+    let { rideId, driverId, vehicleId, driverLat, driverLng, driverAddress } = req.body;
 
+
+    
     try {
-        const result = await rideController.acceptRide(rideId, driverId, vehicleId);
-        res.json(result);
+      // Validação inicial
+      if (!rideId || !driverId || !vehicleId) {
+        return res
+          .status(400)
+          .json({
+            error: "IDs da corrida, motorista e veículo são obrigatórios.",
+          });
+      }
+      if (!driverLat || !driverLng) {
+        if (driverAddress) {
+          console.log(`Buscando GPS do motorista em: ${driverAddress}...`);
+          const coords = await utils.geocodeAddress(driverAddress);
+          driverLat = coords.lat;
+          driverLng = coords.lng;
+        } else {
+          return res
+            .status(400)
+            .json({ error: "A localização atual do motorista é obrigatória." });
+        }
+      }
+
+      // 1. Aceita a corrida no banco e pega as coordenadas do passageiro
+      const result = await rideController.acceptRide(
+        rideId,
+        driverId,
+        vehicleId,
+      );
+
+      // 2. Calcula a distância entre o Motorista e o Passageiro
+      const distanceToPickup = utils.calculateDistance(
+        driverLat,
+        driverLng,
+        result.pickupLat,
+        result.pickupLng,
+      );
+
+      // 3. Calcula o tempo estimado para o motorista chegar
+      const timeToPickup = utils.estimateTime(distanceToPickup);
+
+      // Limpamos as coordenadas do passageiro da resposta para ficar elegante
+      delete result.pickupLat;
+      delete result.pickupLng;
+
+      // 4. Devolve o resultado final com a previsão!
+      res.json({
+        ...result,
+        distanceToPickupKm: distanceToPickup,
+        estimatedArrivalMinutes: timeToPickup,
+      });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

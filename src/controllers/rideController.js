@@ -28,8 +28,9 @@ function requestRide({
             INSERT INTO rides (
                 user_id, ride_type, price, distance, 
                 pickup_address, pickup_lat, pickup_lng, 
-                dropoff_address, dropoff_lat, dropoff_lng
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                dropoff_address, dropoff_lat, dropoff_lng,
+                status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'awaiting_payment')
         `;
 
     const params = [
@@ -131,16 +132,26 @@ function cancelRide(rideId, userId) {
 function acceptRide(rideId, driverId, vehicleId) {
     return new Promise((resolve, reject) => {
         if (!rideId || !driverId || !vehicleId) {
-            return reject(new Error('ID da corrida, ID do motorista e ID do veículo são obrigatórios.'));
+            return reject(
+              new Error(
+                "ID da corrida, ID do motorista e ID do veículo são obrigatórios."
+              ));
         }
 
         // 1. Verifica se a corrida existe e se ainda está aguardando motorista
-        db.get(`SELECT status FROM rides WHERE id = ?`, [rideId], (err, ride) => {
+        db.get(
+          `SELECT status, pickup_lat, pickup_lng FROM rides WHERE id = ?`,
+          [rideId],
+          (err, ride) => {
             if (err) return reject(err);
-            if (!ride) return reject(new Error('Corrida não encontrada.'));
-            
-            if (ride.status !== 'requested') {
-                return reject(new Error('Esta corrida não está mais disponível (pode ter sido cancelada ou já aceita por outro motorista).'));
+            if (!ride) return reject(
+              new Error("Corrida não encontrada."));
+
+            if (ride.status !== "requested") {
+              return reject(
+                new Error(
+                  "Esta corrida não está mais disponível (pode ter sido cancelada ou já aceita por outro motorista).",
+                ));
             }
 
             // 2. Atualiza a corrida com o motorista, o veículo e muda o status
@@ -151,35 +162,37 @@ function acceptRide(rideId, driverId, vehicleId) {
                     status = 'accepted'
                 WHERE id = ?
             `;
-            
+
             db.run(query, [driverId, vehicleId, rideId], function (err) {
-                if (err) {
-                  if (err.message.includes("FOREIGN KEY")) {
-                    return reject(
-                      new Error(
-                        "Motorista ou Veículo não encontrado no sistema. Verifique os IDs informados.",
-                      ),
-                    );
-                  }
+              if (err) {
+                if (err.message.includes("FOREIGN KEY")) {
                   return reject(
-                    new Error("Erro ao aceitar a corrida: " + err.message),
-                  );
+                    new Error(
+                      "Motorista ou Veículo não encontrado no sistema. Verifique os IDs informados.",
+                    ));
                 }
-
-                db.run(
-                  `INSERT INTO ride_status_logs (ride_id, status) VALUES (?, 'accepted')`,
-                  [rideId],
+                return reject(
+                  new Error("Erro ao aceitar a corrida: " + err.message),
                 );
+              }
 
-                resolve({ 
-                    message: "Corrida aceita com sucesso!", 
-                    rideId: rideId, 
-                    driverId: driverId,
-                    vehicleId: vehicleId,
-                    status: 'accepted' 
-                });
+              db.run(
+                `INSERT INTO ride_status_logs (ride_id, status) VALUES (?, 'accepted')`,
+                [rideId],
+              );
+
+              resolve({
+                message: "Corrida aceita com sucesso!",
+                rideId: rideId,
+                driverId: driverId,
+                vehicleId: vehicleId,
+                status: "accepted",
+                pickupLat: ride.pickup_lat,
+                pickupLng: ride.pickup_lng
+              });
             });
-        });
+          },
+        );
     });
 }
 

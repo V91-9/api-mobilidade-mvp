@@ -50,7 +50,7 @@ db.serialize(() => {
             plate TEXT UNIQUE NOT NULL,
             model TEXT NOT NULL,
             color TEXT NOT NULL,
-            category TEXT NOT NULL, -- Ex: 'carro_comum', 'carro_luxo', 'moto'
+            category TEXT NOT NULL,
             FOREIGN KEY (driver_id) REFERENCES drivers(id)
         )
     `);
@@ -71,7 +71,7 @@ db.serialize(() => {
             dropoff_address TEXT NOT NULL,
             dropoff_lat REAL NOT NULL,
             dropoff_lng REAL NOT NULL,
-            status TEXT DEFAULT 'requested',
+            status TEXT DEFAULT 'awaiting_details',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id),
             FOREIGN KEY (driver_id) REFERENCES drivers(id),
