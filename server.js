@@ -312,7 +312,6 @@ app.post('/ride/accept', async (req, res) => {
       // 3. Calcula o tempo estimado para o motorista chegar
       const timeToPickup = utils.estimateTime(distanceToPickup);
 
-      // Limpamos as coordenadas do passageiro da resposta para ficar elegante
       delete result.pickupLat;
       delete result.pickupLng;
 
