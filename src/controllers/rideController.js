@@ -196,6 +196,9 @@ function acceptRide(rideId, driverId, vehicleId) {
     });
 }
 
+/**
+ * Atualiza o status de uma corrida.
+ */
 function updateRideStatus(rideId, status) {
   return new Promise((resolve, reject) => {
     db.run(
@@ -225,10 +228,36 @@ function updateRideStatus(rideId, status) {
   });
 }
 
+/**
+ * Busca o histórico de todas as corridas de um usuário (Passageiro).
+ */
+function getUserRideHistory(userId) {
+    return new Promise((resolve, reject) => {
+        if (!userId) {
+            return reject(new Error('ID do usuário é obrigatório.'));
+        }
+
+        const query = `
+            SELECT id, ride_type, pickup_address, dropoff_address, price, distance, status, created_at 
+            FROM rides 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC
+        `;
+
+        db.all(query, [userId], (err, rows) => {
+            if (err) return reject(new Error('Erro interno ao buscar o histórico de corridas.'));
+            
+            // Retorna a lista vazia [] se ele não tiver nenhuma corrida, ou a lista preenchida
+            resolve(rows);
+        });
+    });
+}
+
 module.exports = {
   requestRide,
   getRideById,
   cancelRide,
   acceptRide,
   updateRideStatus,
+  getUserRideHistory
 };

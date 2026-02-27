@@ -377,6 +377,23 @@ app.get('/ride/:id', async (req, res) => {
     }
 });
 
+// 14. Rota para Listar o Histórico de Corridas do Usuário (Passageiro)
+app.get('/user/:userId/rides', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        
+        const history = await rideController.getUserRideHistory(userId);
+        
+        if (history.length === 0) {
+            return res.status(200).json({ message: "Você ainda não realizou nenhuma viagem.", rides: [] });
+        }
+
+        res.status(200).json({ totalRides: history.length, rides: history });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 // Liga o servidor na porta 3000
 const PORT = 3000;
 app.listen(PORT, () => {
