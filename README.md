@@ -161,7 +161,8 @@ O servidor estará rodando em `http://localhost:3000`. O banco de dados (`databa
 #### 4.3. Aceitar Corrida (Motorista)
 * **Método:** `POST /ride/accept`
 * **Descrição:** Vincula o motorista à corrida e calcula o tempo estimado de chegada até o passageiro.
-* **Body:** ```json
+* **Body:**
+   ```json
   {
     "rideId": 1,
     "driverId": 1,
