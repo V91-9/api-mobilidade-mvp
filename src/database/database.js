@@ -17,28 +17,30 @@ const db = new sqlite3.Database('./database.sqlite', (err) => {
 
 
 db.serialize(() => {
-  // 1. Cria a tabela de usuários (Users)
+  // 1. Tabela de Identidade Única (Agora com Phone e Reset Token)
   db.run(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            birthdate TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
+            cpf TEXT UNIQUE NOT NULL,
+            phone TEXT NOT NULL, -- Atualizado para inglês
             password TEXT NOT NULL,
-            phone TEXT NOT NULL,
-            reset_token TEXT
+            birthdate TEXT NOT NULL,
+            reset_token TEXT, -- Token para redefinição de senha
+            reset_token_expires DATETIME, -- Validade do token de segurança
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
 
-  // 2. Tabela de Condutores (Drivers)
+  // 2. Tabela de Perfil de Motorista (Extensão da identidade do usuário)
   db.run(`
         CREATE TABLE IF NOT EXISTS drivers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            cnh TEXT UNIQUE NOT NULL,
-            phone TEXT NOT NULL
+            user_id INTEGER UNIQUE NOT NULL, -- Garante que 1 usuário tenha apenas 1 perfil de motorista
+            cnh TEXT UNIQUE NOT NULL,        -- Documento específico de motorista
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
         )
     `);
 
@@ -50,7 +52,6 @@ db.serialize(() => {
             plate TEXT UNIQUE NOT NULL,
             model TEXT NOT NULL,
             color TEXT NOT NULL,
-            category TEXT NOT NULL,
             FOREIGN KEY (driver_id) REFERENCES drivers(id)
         )
     `);
@@ -102,6 +103,22 @@ db.serialize(() => {
             status TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (ride_id) REFERENCES rides(id)
+        )
+    `);
+
+  // 7. Tabela de Avaliações
+  db.run(`
+        CREATE TABLE IF NOT EXISTS reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ride_id INTEGER UNIQUE NOT NULL, -- UNIQUE garante que a corrida só seja avaliada uma vez
+            user_id INTEGER NOT NULL, -- Passageiro que está avaliando
+            driver_id INTEGER NOT NULL, -- Motorista que está sendo avaliado
+            rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+            comment TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ride_id) REFERENCES rides(id),
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (driver_id) REFERENCES drivers(id)
         )
     `);
 });
