@@ -163,12 +163,20 @@ function getRideById(rideId) {
   return new Promise((resolve, reject) => {
 
     const query = `
-      SELECT
-        *
+      SELECT 
+        r.*, 
+        u.name as driver_name, 
+        v.plate, v.model, v.color 
       FROM
-        rides
+        rides r
+      LEFT JOIN
+        drivers d ON r.driver_id = d.id
+      LEFT JOIN
+        users u ON d.user_id = u.id
+      LEFT JOIN
+        vehicles v ON r.vehicle_id = v.id
       WHERE
-        id = ?
+        r.id = ?
     `;
 
     db.get(
@@ -185,9 +193,36 @@ function getRideById(rideId) {
         return resolve(null);
       }
 
+      const rideDetails = {
+        id: ride.id,
+        userId: ride.user_id,
+        status: ride.status,
+        rideType: ride.ride_type,
+        price: ride.price,
+        distance: ride.distance,
+        pickupAddress: ride.pickup_address,
+        pickupLat: ride.pickup_lat,
+        pickupLng: ride.pickup_lng,
+        dropoffAddress: ride.dropoff_address,
+        dropoffLat: ride.dropoff_lat,
+        dropoffLng: ride.dropoff_lng,
+        createdAt: ride.created_at,
+        driver: ride.driver_id
+          ? {
+              id: ride.driver_id,
+              name: ride.driver_name,
+              vehicle: {
+                plate: ride.plate,
+                model: ride.model,
+                color: ride.color,
+              }
+            }
+          : null
+      };
+
       resolve({
         message: "Detalhes da corrida recuperados com sucesso.",
-        ride: ride
+        ride: rideDetails
       });
     });
   });

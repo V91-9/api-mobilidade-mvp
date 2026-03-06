@@ -405,6 +405,50 @@ app.get('/driver/:driverId/rating', async (req, res) => {
     }
 });
 
+// 17. Rota Simulada para o MVP - Suporta GPS Automático ou Endereço Manual
+app.get('/simulation/nearby-drivers', async (req, res) => {
+
+    let { lat, lng, address } = req.query;
+
+    try {
+        // Se NÃO tem GPS, mas TEM o endereço manual digitado
+        if ((!lat || !lng) && address) {
+
+            console.log(`[Simulador] Convertendo endereço manual para GPS: ${address}...`);
+            const coords = await utils.geocodeAddress(address);
+            lat = coords.lat;
+            lng = coords.lng;
+
+        } else if (!lat || !lng) {
+            return res.status(400).json({ 
+                error: "Validação: Envie a localização atual (lat/lng) ou um endereço de origem (address)." 
+            });
+        }
+
+        console.log(`[Simulador] Buscando carros próximos à coordenada: ${lat}, ${lng}`);
+
+        // Motoristas fictícios com tempos individuais
+        const nearbyDrivers = [
+            { id: 101, name: "Carlos S.", rating: 4.8, car: "Toyota Corolla - Prata", distanceKm: 1.2, etaMinutes: 3 },
+            { id: 102, name: "Ana P.", rating: 4.9, car: "Hyundai HB20 - Branco", distanceKm: 2.5, etaMinutes: 5 },
+            { id: 103, name: "Marcos T.", rating: 4.7, car: "Chevrolet Onix - Preto", distanceKm: 3.1, etaMinutes: 7 }
+        ];
+
+        const totalEta = nearbyDrivers.reduce((sum, driver) => sum + driver.etaMinutes, 0);
+        const etaAverageMinutes = Math.round(totalEta / nearbyDrivers.length);
+
+        res.status(200).json({
+            message: "Motoristas próximos localizados.",
+            etaAverageMinutes: etaAverageMinutes,
+            nearbyDrivers: nearbyDrivers,
+            referenceLocation: { lat, lng } 
+        });
+
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 // Liga o servidor na porta 3000
 const PORT = 3000;
 
