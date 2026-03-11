@@ -1,16 +1,16 @@
 :root {
-  --bg: #f3efe8;
-  --panel: rgba(247, 243, 237, 0.9);
-  --line: rgba(126, 108, 88, 0.12);
-  --line-strong: rgba(217, 119, 72, 0.3);
-  --text: #2e2a26;
-  --muted: #7c736a;
-  --accent-orange: #d76f45;
-  --accent-green: #6e9f85;
-  --accent-blue: #9ba9b8;
-  --accent-ice: #8a7767;
+  --bg: #eef2f4;
+  --panel: rgba(248, 252, 253, 0.92);
+  --line: rgba(31, 101, 184, 0.12);
+  --line-strong: rgba(45, 155, 226, 0.32);
+  --text: #16324a;
+  --muted: #5f7283;
+  --accent-orange: #2aa7e0;
+  --accent-green: #7cc61c;
+  --accent-blue: #1f6fd1;
+  --accent-ice: #2c93c9;
   --danger: #c65a52;
-  --shadow: 0 20px 48px rgba(117, 92, 63, 0.12);
+  --shadow: 0 20px 48px rgba(21, 91, 155, 0.14);
   --radius-xl: 32px;
   --radius-lg: 24px;
   --radius-md: 18px;
@@ -26,10 +26,10 @@ body {
   color: var(--text);
   font-family: "Sora", sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(215, 111, 69, 0.12), transparent 24%),
-    radial-gradient(circle at 85% 10%, rgba(226, 196, 162, 0.24), transparent 22%),
-    radial-gradient(circle at bottom right, rgba(205, 183, 156, 0.18), transparent 26%),
-    linear-gradient(180deg, #f7f2eb 0%, #f2ece4 42%, #ebe4da 100%);
+    radial-gradient(circle at top left, rgba(32, 167, 224, 0.16), transparent 24%),
+    radial-gradient(circle at 85% 10%, rgba(124, 198, 28, 0.18), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(31, 111, 209, 0.14), transparent 26%),
+    linear-gradient(180deg, #f4f8fa 0%, #edf4f7 42%, #e7f0f4 100%);
 }
 
 body::before {
@@ -188,13 +188,13 @@ label,
 
 .passenger-lane {
   background:
-    linear-gradient(180deg, rgba(215, 111, 69, 0.07), transparent 18%),
+    linear-gradient(180deg, rgba(42, 167, 224, 0.1), transparent 18%),
     var(--panel);
 }
 
 .driver-lane {
   background:
-    linear-gradient(180deg, rgba(110, 159, 133, 0.08), transparent 18%),
+    linear-gradient(180deg, rgba(124, 198, 28, 0.12), transparent 18%),
     var(--panel);
 }
 
@@ -263,6 +263,10 @@ label,
   padding: 16px;
 }
 
+.panel-form[hidden] {
+  display: none;
+}
+
 label {
   display: grid;
   gap: 7px;
@@ -304,9 +308,9 @@ button,
 button {
   padding: 13px 18px;
   font-weight: 600;
-  color: #fff8f2;
-  background: linear-gradient(135deg, #d1663f, #de8255);
-  box-shadow: 0 12px 26px rgba(215, 111, 69, 0.22);
+  color: #f7fcff;
+  background: linear-gradient(135deg, #1f6fd1, #7cc61c);
+  box-shadow: 0 12px 26px rgba(31, 111, 209, 0.24);
   transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
 }
 
@@ -318,8 +322,8 @@ button:hover {
 .ghost-button {
   padding: 12px 18px;
   color: var(--text);
-  background: rgba(255, 252, 247, 0.7);
-  border: 1px solid rgba(126, 108, 88, 0.12);
+  background: rgba(247, 252, 255, 0.82);
+  border: 1px solid rgba(31, 111, 209, 0.14);
 }
 
 .data-list {

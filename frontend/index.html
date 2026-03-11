@@ -16,8 +16,8 @@
     <div class="app-shell">
       <header class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">Operacao local</p>
-          <h1>Painel espelhado para passageiro e motorista</h1>
+          <p class="eyebrow"></p>
+          <h1>Painel de teste VrumVrum</h1>
           <p class="hero-text">
             Como tudo esta sendo operado no mesmo dispositivo, a tela foi dividida em duas trilhas:
             a esquerda fica o fluxo do passageiro e a direita o fluxo do motorista.
@@ -98,20 +98,25 @@
                 <span class="tag">Em uso</span>
               </div>
               <p id="passenger-session-copy" class="lane-meta">Sessao de passageiro ativa.</p>
-              <button type="button" id="passenger-logout-button" class="ghost-button">
-                Sair do passageiro
-              </button>
+              <div class="inline-actions session-actions">
+                <button type="button" id="toggle-simulation-form" class="ghost-button">
+                  Buscar motoristas proximos
+                </button>
+                <button type="button" id="passenger-logout-button" class="ghost-button">
+                  Sair do passageiro
+                </button>
+              </div>
             </article>
 
-            <article class="operation-card passenger-only" data-passenger-stage="ready">
+            <article class="operation-card passenger-only" data-passenger-stage="simulation">
               <div class="card-head">
                 <div>
                   <p class="section-kicker">Simulacao</p>
-                  <h3>Oferta local</h3>
+                  <h3>Posição atual</h3>
                 </div>
                 <span class="tag">ETA</span>
               </div>
-              <form id="simulation-form" class="panel-form compact">
+              <form id="simulation-form" class="panel-form compact" hidden>
                 <label>Latitude <input name="lat" type="number" step="any" value="-23.55052" /></label>
                 <label>Longitude <input name="lng" type="number" step="any" value="-46.633308" /></label>
                 <label>Ou endereco <input name="address" value="Avenida Paulista, 1000" /></label>
@@ -304,14 +309,14 @@
               <div class="inline-actions">
                 <span id="driver-vehicle-badge" class="inline-status">Nenhum veiculo cadastrado</span>
               </div>
-              <form id="vehicle-form" class="panel-form compact">
+              <form id="vehicle-form" class="panel-form compact" hidden>
                 <label>Driver ID <input name="driverId" type="number" data-fill="driverId" data-context="driver" required /></label>
                 <label>Placa <input name="plate" required value="ABC1D23" /></label>
                 <label>Modelo <input name="model" required value="Toyota Corolla" /></label>
                 <label>Cor <input name="color" required value="Prata" /></label>
                 <button type="submit">Cadastrar veiculo</button>
               </form>
-              <form id="driver-rating-form" class="panel-form compact">
+              <form id="driver-rating-form" class="panel-form compact" hidden>
                 <label>Driver ID <input name="driverId" type="number" data-fill="driverId" data-context="driver" required /></label>
                 <button type="submit">Consultar avaliacao</button>
               </form>

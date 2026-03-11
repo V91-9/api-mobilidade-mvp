@@ -3,6 +3,7 @@ const state = {
     loggedIn: false,
     userId: "",
     userName: "",
+    simulationFormOpen: false,
     rideId: "",
     ridePrice: "",
     paymentId: "",
@@ -45,6 +46,10 @@ const passengerSessionCard = document.querySelector(".passenger-session-card");
 const driverSessionCard = document.querySelector(".driver-session-card");
 const passengerSessionTitle = document.getElementById("passenger-session-title");
 const passengerSessionCopy = document.getElementById("passenger-session-copy");
+const simulationForm = document.getElementById("simulation-form");
+const toggleSimulationFormButton = document.getElementById("toggle-simulation-form");
+const rideLookupForm = document.getElementById("ride-lookup-form");
+const rideCancelForm = document.getElementById("ride-cancel-form");
 const driverSessionTitle = document.getElementById("driver-session-title");
 const driverSessionCopy = document.getElementById("driver-session-copy");
 const vehicleForm = document.getElementById("vehicle-form");
@@ -122,6 +127,10 @@ function renderPassengerLane() {
         return !passenger.rideId || passenger.rideStatus === "canceled";
       }
 
+      if (stage === "simulation") {
+        return passenger.simulationFormOpen;
+      }
+
       if (stage === "payment") {
         return (
           passenger.rideStatus === "awaiting_payment" ||
@@ -144,6 +153,15 @@ function renderPassengerLane() {
       ? `Passageiro autenticado como ${passenger.userName}. Corrida atual ${passenger.rideId} com status ${passenger.rideStatus || "em preparacao"}.`
       : `Passageiro autenticado como ${passenger.userName}. Simulacao e solicitacao de corrida liberadas.`
     : "Cadastre ou autentique o passageiro para liberar simulacao, corrida e pagamento.";
+
+  simulationForm.hidden = !passenger.simulationFormOpen;
+  toggleSimulationFormButton.hidden = !passenger.loggedIn || Boolean(passenger.rideId && passenger.rideStatus !== "canceled");
+  toggleSimulationFormButton.textContent = passenger.simulationFormOpen
+    ? "Esconder busca de motoristas"
+    : "Buscar motoristas proximos";
+  const ridePaid = ["requested", "accepted", "arrived", "in_progress", "completed"].includes(passenger.rideStatus);
+  rideLookupForm.hidden = !ridePaid;
+  rideCancelForm.hidden = !ridePaid;
 }
 
 function renderDriverLane() {
@@ -194,7 +212,9 @@ function renderDriverLane() {
   driverRatingForm.hidden = !driver.ratingFormOpen;
   toggleVehicleFormButton.hidden = !driver.loggedIn || !driver.isDriver;
   toggleDriverRatingFormButton.hidden = !driver.loggedIn || !driver.isDriver;
-  toggleVehicleFormButton.textContent = "Cadastrar veiculo";
+  toggleVehicleFormButton.textContent = driver.vehicleFormOpen
+    ? "Esconder cadastro de veiculo"
+    : "Cadastrar veiculo";
   toggleDriverRatingFormButton.textContent = driver.ratingFormOpen ? "Esconder avaliacao" : "Consultar avaliacao";
 
   driverMeta.textContent = driver.loggedIn
@@ -303,6 +323,7 @@ function updatePassengerState(payload, source) {
     passenger.loggedIn = true;
     passenger.userId = user.id;
     passenger.userName = user.name || "";
+    passenger.simulationFormOpen = false;
   }
 
   if (ride?.id) {
@@ -316,6 +337,7 @@ function updatePassengerState(payload, source) {
   if (payload?.tripDetails?.priceBRL) {
     passenger.ridePrice = payload.tripDetails.priceBRL;
     passenger.rideStatus = payload?.ride?.status || "awaiting_payment";
+    passenger.simulationFormOpen = false;
     state.shared.ridePrice = payload.tripDetails.priceBRL;
   }
 
@@ -342,6 +364,7 @@ function updatePassengerState(payload, source) {
     passenger.rideStatus = payload.rideStatus.status || "canceled";
 
     if (passenger.rideStatus === "canceled") {
+      passenger.simulationFormOpen = false;
       passenger.paymentStatus = "";
       passenger.paymentId = "";
       state.shared.paymentStatus = "";
@@ -355,7 +378,15 @@ function updatePassengerState(payload, source) {
   }
 
   if (payload?.review?.rideId) {
-    passenger.rideStatus = "completed";
+    passenger.rideId = "";
+    passenger.ridePrice = "";
+    passenger.paymentId = "";
+    passenger.paymentStatus = "";
+    passenger.rideStatus = "";
+    state.shared.rideId = "";
+    state.shared.ridePrice = "";
+    state.shared.paymentId = "";
+    state.shared.paymentStatus = "";
   }
 
   if (passenger.rideStatus === "completed") {
@@ -516,6 +547,7 @@ document.getElementById("passenger-logout-button").addEventListener("click", () 
     loggedIn: false,
     userId: "",
     userName: "",
+    simulationFormOpen: false,
     rideId: "",
     ridePrice: "",
     paymentId: "",
@@ -535,6 +567,11 @@ document.getElementById("passenger-logout-button").addEventListener("click", () 
   historyList.textContent = "Nenhum historico consultado.";
   historyList.className = "data-list empty";
 
+  updateUi();
+});
+
+toggleSimulationFormButton.addEventListener("click", () => {
+  state.passenger.simulationFormOpen = !state.passenger.simulationFormOpen;
   updateUi();
 });
 
