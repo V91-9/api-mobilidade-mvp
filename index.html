@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VrumVrum Control Tower</title>
+    <title>VrumVrum</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,12 +16,11 @@
     <div class="app-shell">
       <header class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">Frontend operacional do MVP</p>
-          <h1>Mobilidade urbana com fluxo completo, do cadastro ao feedback.</h1>
+          <p class="eyebrow"></p>
+          <h1>Painel de operações</h1>
           <p class="hero-text">
-            Interface unica para testar passageiros, motoristas, pagamento, despacho e historico
-            usando a API local. O frontend prioriza clareza do fluxo, leitura rapida do estado e
-            acoes agrupadas por etapa.
+            Interface para testar passageiros, motoristas, pagamento, despacho e historico
+            usando a API local. 
           </p>
           <div class="hero-actions">
             <button class="secondary-action" type="button" data-jump="#ride-request-form">
@@ -72,92 +71,9 @@
           <strong id="summary-status">Sem corrida ativa</strong>
           <small id="summary-substatus">A jornada aparece aqui em tempo real</small>
         </article>
-        <article class="status-card accent-blue">
-          <span>Proxima acao</span>
-          <strong id="summary-next-step">Crie ou entre em uma conta</strong>
-          <small>O painel recomenda a etapa seguinte com base nas respostas da API</small>
-        </article>
       </section>
 
       <main class="workspace">
-        <section class="story-panel">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">Jornada</p>
-              <h2>Linha de operacao</h2>
-            </div>
-          </div>
-
-          <ol class="journey-timeline" id="journey-timeline">
-            <li data-stage="account" class="active">
-              <span class="timeline-index">01</span>
-              <div>
-                <strong>Conta</strong>
-                <p>Cadastrar ou autenticar passageiro.</p>
-              </div>
-            </li>
-            <li data-stage="driver">
-              <span class="timeline-index">02</span>
-              <div>
-                <strong>Motorista</strong>
-                <p>Ativar perfil do condutor e vincular veiculo.</p>
-              </div>
-            </li>
-            <li data-stage="simulation">
-              <span class="timeline-index">03</span>
-              <div>
-                <strong>Oferta local</strong>
-                <p>Verificar disponibilidade e ETA medio.</p>
-              </div>
-            </li>
-            <li data-stage="ride">
-              <span class="timeline-index">04</span>
-              <div>
-                <strong>Solicitacao</strong>
-                <p>Criar corrida com origem, destino e categoria.</p>
-              </div>
-            </li>
-            <li data-stage="payment">
-              <span class="timeline-index">05</span>
-              <div>
-                <strong>Pagamento</strong>
-                <p>Gerar cobranca e liberar a corrida para aceite.</p>
-              </div>
-            </li>
-            <li data-stage="operations">
-              <span class="timeline-index">06</span>
-              <div>
-                <strong>Despacho</strong>
-                <p>Aceitar corrida, atualizar status e cancelar se necessario.</p>
-              </div>
-            </li>
-            <li data-stage="review">
-              <span class="timeline-index">07</span>
-              <div>
-                <strong>Encerramento</strong>
-                <p>Avaliar motorista e consultar historico.</p>
-              </div>
-            </li>
-          </ol>
-
-          <div class="insight-grid">
-            <article class="insight-card">
-              <p class="section-kicker">Ultima simulacao</p>
-              <h3 id="simulation-headline">Sem busca recente</h3>
-              <p id="simulation-body">
-                Use o simulador para consultar oferta local com GPS ou endereco manual.
-              </p>
-            </article>
-            <article class="insight-card">
-              <p class="section-kicker">Monitoramento</p>
-              <h3 id="ride-headline">Aguardando eventos</h3>
-              <p id="ride-body">
-                Quando uma corrida for criada, aceita ou concluida, os destaques aparecem aqui.
-              </p>
-            </article>
-          </div>
-        </section>
-
         <section class="operations-panel" id="operations-panel">
           <div class="section-heading">
             <div>

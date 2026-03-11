@@ -17,15 +17,10 @@ const sessionMeta = document.getElementById("session-meta");
 const summaryPrice = document.getElementById("summary-price");
 const summaryStatus = document.getElementById("summary-status");
 const summarySubstatus = document.getElementById("summary-substatus");
-const summaryNextStep = document.getElementById("summary-next-step");
 const sessionRide = document.getElementById("session-ride");
 const sessionDriver = document.getElementById("session-driver");
 const sessionVehicle = document.getElementById("session-vehicle");
 const sessionPayment = document.getElementById("session-payment");
-const simulationHeadline = document.getElementById("simulation-headline");
-const simulationBody = document.getElementById("simulation-body");
-const rideHeadline = document.getElementById("ride-headline");
-const rideBody = document.getElementById("ride-body");
 const simulationList = document.getElementById("simulation-list");
 const historyList = document.getElementById("history-list");
 
@@ -66,27 +61,6 @@ function syncInputs() {
   });
 }
 
-function stageFromState() {
-  if (state.rideStatus === "completed") return "review";
-  if (["accepted", "arrived", "in_progress"].includes(state.rideStatus)) return "operations";
-  if (state.paymentId || state.rideStatus === "requested") return "payment";
-  if (state.rideId) return "ride";
-  if (state.vehicleId || state.driverId) return "driver";
-  return "account";
-}
-
-function updateTimeline() {
-  const order = ["account", "driver", "simulation", "ride", "payment", "operations", "review"];
-  const currentStage = stageFromState();
-  const currentIndex = order.indexOf(currentStage);
-
-  document.querySelectorAll("#journey-timeline li").forEach((item) => {
-    const itemIndex = order.indexOf(item.dataset.stage);
-    item.classList.toggle("active", item.dataset.stage === currentStage);
-    item.classList.toggle("done", itemIndex < currentIndex);
-  });
-}
-
 function updateSession() {
   sessionName.textContent = state.userName
     ? `${state.userName} (${state.userId})`
@@ -110,10 +84,8 @@ function updateSession() {
 
   summaryPrice.textContent = formatCurrency(state.ridePrice);
   summaryStatus.textContent = state.rideStatus || "Sem corrida ativa";
-  summaryNextStep.textContent = state.nextStep;
 
   syncInputs();
-  updateTimeline();
 }
 
 function renderOutput(title, payload) {
@@ -218,15 +190,11 @@ function updateStateFromResponse(payload) {
   if (payload?.tripDetails?.priceBRL) {
     state.ridePrice = payload.tripDetails.priceBRL;
     state.rideStatus = payload?.ride?.status || "awaiting_payment";
-    rideHeadline.textContent = `Corrida #${payload?.ride?.id || state.rideId} criada`;
-    rideBody.textContent = `${payload.tripDetails.distanceKm} km estimados, ${payload.tripDetails.estimatedTimeMinutes} min e valor ${formatCurrency(payload.tripDetails.priceBRL)}.`;
     setNextStep("Gere o pagamento para liberar a corrida aos motoristas.", "Corrida aguardando confirmacao financeira.");
   }
 
   if (payload?.driverApproach) {
     state.rideStatus = payload?.ride?.status || "accepted";
-    rideHeadline.textContent = "Corrida aceita";
-    rideBody.textContent = `Motorista a ${payload.driverApproach.distanceToPickupKm} km do embarque. ETA ${payload.driverApproach.estimatedArrivalMinutes} min.`;
     setNextStep("Atualize a corrida para arrived, in_progress e completed.", "Despacho confirmado.");
   }
 
@@ -260,8 +228,6 @@ function updateStateFromResponse(payload) {
       labels[payload.updateDetails.currentStatus] || "Status atualizado."
     );
 
-    rideHeadline.textContent = `Ride #${payload.updateDetails.rideId} em ${payload.updateDetails.currentStatus}`;
-    rideBody.textContent = labels[payload.updateDetails.currentStatus] || "Status atualizado.";
   }
 
   if (payload?.rideStatus?.rideId) {
@@ -279,8 +245,6 @@ function updateStateFromResponse(payload) {
   }
 
   if (payload?.nearbyDrivers) {
-    simulationHeadline.textContent = `${payload.nearbyDrivers.length} motoristas encontrados`;
-    simulationBody.textContent = `ETA medio de ${payload.etaAverageMinutes} min para a regiao consultada.`;
     setNextStep("Com oferta validada, siga para a solicitacao da corrida.", "Simulacao concluida.");
   }
 
@@ -290,8 +254,6 @@ function updateStateFromResponse(payload) {
 
   if (payload?.ride?.status && !payload?.driverApproach && !payload?.tripDetails) {
     state.rideStatus = payload.ride.status;
-    rideHeadline.textContent = `Ride #${payload.ride.id} localizada`;
-    rideBody.textContent = `Status atual ${payload.ride.status} para o trajeto ${payload.ride.pickupAddress} -> ${payload.ride.dropoffAddress}.`;
   }
 
   updateSession();

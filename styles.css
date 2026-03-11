@@ -1,17 +1,17 @@
 :root {
-  --bg: #08111f;
-  --bg-soft: #0d1728;
-  --panel: rgba(9, 20, 36, 0.82);
-  --line: rgba(148, 179, 255, 0.16);
-  --line-strong: rgba(124, 159, 255, 0.34);
-  --text: #f4f7fb;
-  --muted: #9fb1cb;
-  --accent-orange: #ff8a3d;
-  --accent-green: #2ad39b;
-  --accent-blue: #63a3ff;
-  --accent-ice: #cfe1ff;
-  --danger: #ff6b6b;
-  --shadow: 0 28px 80px rgba(0, 0, 0, 0.38);
+  --bg: #f3efe8;
+  --bg-soft: #ece6dd;
+  --panel: rgba(247, 243, 237, 0.9);
+  --line: rgba(126, 108, 88, 0.12);
+  --line-strong: rgba(217, 119, 72, 0.3);
+  --text: #2e2a26;
+  --muted: #7c736a;
+  --accent-orange: #d76f45;
+  --accent-green: #6e9f85;
+  --accent-blue: #9ba9b8;
+  --accent-ice: #8a7767;
+  --danger: #c65a52;
+  --shadow: 0 20px 48px rgba(117, 92, 63, 0.12);
   --radius-xl: 32px;
   --radius-lg: 24px;
   --radius-md: 18px;
@@ -31,10 +31,10 @@ body {
   color: var(--text);
   font-family: "Sora", sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(255, 138, 61, 0.22), transparent 24%),
-    radial-gradient(circle at 85% 10%, rgba(99, 163, 255, 0.18), transparent 22%),
-    radial-gradient(circle at bottom right, rgba(42, 211, 155, 0.14), transparent 26%),
-    linear-gradient(180deg, #050b14 0%, #091321 38%, #0d1728 100%);
+    radial-gradient(circle at top left, rgba(215, 111, 69, 0.12), transparent 24%),
+    radial-gradient(circle at 85% 10%, rgba(226, 196, 162, 0.24), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(205, 183, 156, 0.18), transparent 26%),
+    linear-gradient(180deg, #f7f2eb 0%, #f2ece4 42%, #ebe4da 100%);
 }
 
 body::before {
@@ -43,8 +43,8 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(96, 78, 59, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 78, 59, 0.03) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: radial-gradient(circle at center, black 35%, transparent 95%);
 }
@@ -65,7 +65,6 @@ body::before {
 .hero-copy,
 .mission-card,
 .status-card,
-.story-panel,
 .operation-card,
 .console-panel {
   position: relative;
@@ -82,14 +81,12 @@ body::before {
 }
 
 .mission-card,
-.story-panel,
 .console-panel {
   padding: 28px;
 }
 
 .hero-copy::after,
 .mission-card::after,
-.story-panel::after,
 .operation-card::after,
 .console-panel::after {
   content: "";
@@ -98,7 +95,7 @@ body::before {
   width: 240px;
   height: 240px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 163, 255, 0.2), transparent 70%);
+  background: radial-gradient(circle, rgba(215, 111, 69, 0.1), transparent 70%);
   pointer-events: none;
 }
 
@@ -140,8 +137,6 @@ h3 {
 
 .hero-text,
 #session-meta,
-.journey-timeline p,
-.insight-card p,
 .data-row span,
 .data-row small,
 label {
@@ -173,9 +168,9 @@ button {
 button {
   padding: 13px 18px;
   font-weight: 600;
-  color: #08111f;
-  background: linear-gradient(135deg, var(--accent-orange), #ffbe5c);
-  box-shadow: 0 16px 30px rgba(255, 138, 61, 0.25);
+  color: #fff8f2;
+  background: linear-gradient(135deg, #d1663f, #de8255);
+  box-shadow: 0 12px 26px rgba(215, 111, 69, 0.22);
   transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
 }
 
@@ -188,8 +183,8 @@ button:hover {
 .ghost-button {
   padding: 12px 18px;
   color: var(--text);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 252, 247, 0.7);
+  border: 1px solid rgba(126, 108, 88, 0.12);
 }
 
 .mission-card {
@@ -211,8 +206,8 @@ button:hover {
 .session-stats div {
   padding: 14px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 250, 244, 0.82);
+  border: 1px solid rgba(126, 108, 88, 0.1);
 }
 
 .session-stats dd {
@@ -223,7 +218,7 @@ button:hover {
 
 .status-band {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
   margin: 22px 0;
 }
@@ -247,34 +242,24 @@ button:hover {
 
 .accent-orange {
   background:
-    linear-gradient(135deg, rgba(255, 138, 61, 0.18), transparent 65%),
+    linear-gradient(135deg, rgba(215, 111, 69, 0.16), transparent 65%),
     var(--panel);
 }
 
 .accent-green {
   background:
-    linear-gradient(135deg, rgba(42, 211, 155, 0.18), transparent 65%),
+    linear-gradient(135deg, rgba(110, 159, 133, 0.16), transparent 65%),
     var(--panel);
 }
 
 .accent-blue {
   background:
-    linear-gradient(135deg, rgba(99, 163, 255, 0.18), transparent 65%),
+    linear-gradient(135deg, rgba(155, 169, 184, 0.18), transparent 65%),
     var(--panel);
 }
 
 .workspace {
-  display: grid;
-  grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.55fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.story-panel {
-  display: grid;
-  gap: 24px;
-  position: sticky;
-  top: 18px;
+  display: block;
 }
 
 .section-heading,
@@ -288,64 +273,8 @@ button:hover {
 .tag {
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.journey-timeline {
-  display: grid;
-  gap: 14px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.journey-timeline li {
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
-  gap: 14px;
-  padding: 16px;
-  border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
-  transition: transform 220ms ease, border-color 220ms ease, background 220ms ease;
-}
-
-.journey-timeline li.active {
-  transform: translateX(6px);
-  border-color: var(--line-strong);
-  background: rgba(99, 163, 255, 0.1);
-}
-
-.journey-timeline li.done {
-  border-color: rgba(42, 211, 155, 0.3);
-  background: rgba(42, 211, 155, 0.08);
-}
-
-.timeline-index {
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  font-weight: 700;
-  background: linear-gradient(135deg, rgba(99, 163, 255, 0.3), rgba(255, 138, 61, 0.22));
-}
-
-.insight-grid {
-  display: grid;
-  gap: 16px;
-}
-
-.insight-card {
-  padding: 20px;
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.insight-card h3 {
-  margin-bottom: 8px;
+  background: rgba(255, 250, 244, 0.78);
+  border: 1px solid rgba(126, 108, 88, 0.1);
 }
 
 .operations-panel {
@@ -383,8 +312,8 @@ button:hover {
   gap: 12px;
   padding: 18px;
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(251, 247, 241, 0.86);
+  border: 1px solid rgba(126, 108, 88, 0.1);
 }
 
 .panel-form.compact {
@@ -402,18 +331,18 @@ select,
 textarea {
   width: 100%;
   padding: 13px 14px;
-  color: var(--text);
+  color: #3a342f;
   font: inherit;
-  background: rgba(5, 11, 20, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #f2efea;
+  border: 1px solid rgba(126, 108, 88, 0.12);
   border-radius: 16px;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  outline: 2px solid rgba(99, 163, 255, 0.34);
-  border-color: rgba(99, 163, 255, 0.4);
+  outline: 2px solid rgba(215, 111, 69, 0.18);
+  border-color: rgba(215, 111, 69, 0.35);
 }
 
 textarea {
@@ -431,8 +360,8 @@ textarea {
   padding: 16px;
   border-radius: var(--radius-md);
   color: var(--muted);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+  background: rgba(255, 250, 244, 0.55);
+  border: 1px dashed rgba(126, 108, 88, 0.12);
 }
 
 .data-row {
@@ -440,8 +369,8 @@ textarea {
   gap: 4px;
   padding: 16px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 250, 244, 0.75);
+  border: 1px solid rgba(126, 108, 88, 0.1);
 }
 
 .console-panel {
@@ -456,15 +385,15 @@ textarea {
 }
 
 .flash.success {
-  color: #b7ffe5;
-  background: rgba(42, 211, 155, 0.14);
-  border: 1px solid rgba(42, 211, 155, 0.24);
+  color: #456b58;
+  background: rgba(110, 159, 133, 0.14);
+  border: 1px solid rgba(110, 159, 133, 0.22);
 }
 
 .flash.error {
-  color: #ffd0d0;
-  background: rgba(255, 107, 107, 0.12);
-  border: 1px solid rgba(255, 107, 107, 0.22);
+  color: #8d413d;
+  background: rgba(198, 90, 82, 0.1);
+  border: 1px solid rgba(198, 90, 82, 0.18);
 }
 
 .hidden {
@@ -478,9 +407,9 @@ textarea {
   overflow: auto;
   padding: 22px;
   border-radius: var(--radius-lg);
-  background: #030814;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #d8e8ff;
+  background: #f5f1eb;
+  border: 1px solid rgba(126, 108, 88, 0.12);
+  color: #4a433d;
   line-height: 1.65;
 }
 
@@ -496,10 +425,6 @@ textarea {
   .operation-card.wide {
     grid-column: span 1;
   }
-
-  .story-panel {
-    position: static;
-  }
 }
 
 @media (max-width: 720px) {
@@ -510,7 +435,6 @@ textarea {
 
   .hero-copy,
   .mission-card,
-  .story-panel,
   .console-panel,
   .operation-card,
   .status-card {
