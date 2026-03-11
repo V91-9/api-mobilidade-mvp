@@ -93,7 +93,7 @@ function addVehicle({ driverId, plate, model, color }) {
 
     db.run(
       vehicleQuery,
-      [driverId, plate, model, color, category],
+      [driverId, plate, model, color],
       function (err) {
 
         if (err) {
@@ -137,32 +137,52 @@ function getDriverRating(driverId) {
       return reject(new Error("ID do motorista é obrigatório."));
     }
 
-    const query = `
-      SELECT 
-        COUNT(*) as total_reviews, IFNULL(AVG(rating), 0) as average_rating 
+    const driverQuery = `
+      SELECT
+        id
       FROM
-        reviews 
+        drivers
       WHERE
-        driver_id = ?
+        id = ? 
     `;
 
-    db.get(
-      query,
-      [driverId],
-      (err, row) => {
+    db.get(driverQuery, [driverId], (err, driver) => {
 
       if (err) {
-        return reject(
-          new Error("Erro ao calcular a nota do motorista."));
+        return reject(new Error("Erro interno ao validar motorista."));
       }
 
-      resolve({
-        message: "Avaliação do motorista recuperada com sucesso.",
-        ratingDetails: {
-          driverId: driverId,
-          totalReviews: row.total_reviews,
-          averageRating: parseFloat(row.average_rating.toFixed(2)),
+      if (!driver) {
+        return reject(new Error("Motorista não encontrado."));
+      }
+
+      const query = `
+        SELECT 
+          COUNT(*) as total_reviews, IFNULL(AVG(rating), 0) as average_rating 
+        FROM
+          reviews 
+        WHERE
+          driver_id = ?
+      `;
+
+      db.get(
+        query,
+        [driverId],
+        (err, row) => {
+
+        if (err) {
+          return reject(
+            new Error("Erro ao calcular a nota do motorista."));
         }
+
+        resolve({
+          message: "Avaliação do motorista recuperada com sucesso.",
+          ratingDetails: {
+            driverId: driverId,
+            totalReviews: row.total_reviews,
+            averageRating: parseFloat(row.average_rating.toFixed(2))
+          }
+        });
       });
     });
   });

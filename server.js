@@ -114,22 +114,22 @@ app.post('/ride/request', async (req, res) => {
         }
 
         // 1. Calcula a distância matemática entre os pontos
-        const calculatedDistance = utils.calculateDistance({
+        const calculatedDistance = utils.calculateDistance(
             pickupLat,
             pickupLng,
             dropoffLat,
             dropoffLng
-        });
+        );
 
         // 2. Estima o tempo da viagem
         const estimatedTime = utils.estimateTime(calculatedDistance);
 
         // 3. Calcula o preço com base na distância e na categoria da corrida
-        const calculatedPrice = utils.calculatePrice({
+        const calculatedPrice = utils.calculatePrice(
             calculatedDistance,
             estimatedTime,
             rideType
-        });
+        );
 
         // 4. Salva no banco de dados
         const newRide = await rideController.requestRide({
@@ -248,23 +248,23 @@ app.post('/ride/accept', async (req, res) => {
         }
 
         // 1. Aceita a corrida no banco e pega as coordenadas do passageiro
-        const result = await rideController.acceptRide({
+        const result = await rideController.acceptRide(
             rideId,
             driverId,
             vehicleId
-        });
+        );
 
         // 2. Extrai as coordenadas de embarque que vieram do banco de dados
         const pickupLat = result.ride.pickup_lat;
         const pickupLng = result.ride.pickup_lng;
 
         // 3. Calcula a distância entre o Motorista e o Passageiro
-        const distanceToPickup = utils.calculateDistance({
+        const distanceToPickup = utils.calculateDistance(
             driverLat,
             driverLng,
             pickupLat,
             pickupLng,
-        });
+        );
 
         // 4. Calcula o tempo estimado para o motorista chegar
         const timeToPickup = utils.estimateTime(distanceToPickup);
@@ -360,6 +360,12 @@ app.get('/user/:userId/rides', async (req, res) => {
 
     try {
         const history = await rideController.getUserRideHistory(userId);
+
+        if (!result) {
+            return res.status(404).json({ 
+                error: "Usuário não encontrado no sistema."
+            });
+        }
         
         if (history.length === 0) {
             return res.status(200).json({ 
@@ -371,7 +377,7 @@ app.get('/user/:userId/rides', async (req, res) => {
         res.status(200).json(history);
 
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -397,11 +403,17 @@ app.get('/driver/:driverId/rating', async (req, res) => {
 
     try {
         const result = await driverController.getDriverRating(driverId);
+
+        if (!result) {
+            return res.status(404).json({
+                error: "Motorista não encontrado no sistema."
+            });
+        }
         
         res.status(200).json(result);
 
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 });
 

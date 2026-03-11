@@ -575,38 +575,56 @@ function getUserRideHistory(userId) {
   return new Promise((resolve, reject) => {
 
     if (!userId) {
-      return reject(
-        new Error('ID do usuário é obrigatório.'));
+      return reject(new Error("ID do usuário é obrigatório."));
     }
 
-    const query = `
+    const userQuery = `
       SELECT
-        id, ride_type, pickup_address, dropoff_address, price, distance, status, created_at 
+        id
       FROM
-        rides 
+        users
       WHERE
-        user_id = ? 
-      ORDER BY
-        created_at DESC
+        id = ? 
     `;
 
-    db.all(
-      query,
-      [userId],
-      (err, rides) => {
-
+    db.get(userQuery, [userId], (err, user) => {
+      
       if (err) {
-        return reject(
-          new Error('Erro interno ao buscar o histórico de corridas.'));
+        return reject(new Error("Erro interno ao verificar usuário."));
       }
 
-      resolve({
-        message: "Histórico recuperado com sucesso.",
-        summary: {
-          userId: userId,
-          totalRides: rides.length,
-        },
-        history: rides
+      if (!user) {
+        return reject(
+          new Error("Usuário não encontrado. Crie uma conta primeiro."),
+        );
+      }
+
+      const query = `
+        SELECT
+          id, ride_type, pickup_address, dropoff_address, price, distance, status, created_at 
+        FROM
+          rides 
+        WHERE
+          user_id = ? 
+        ORDER BY
+          created_at DESC
+      `;
+
+      db.all(query, [userId], (err, rides) => {
+        if (err) {
+          return reject(
+            new Error("Erro interno ao buscar o histórico de corridas."),
+          );
+        }
+
+        resolve({
+          message: "Histórico recuperado com sucesso.",
+          summary: {
+            userId: userId,
+            totalRides: rides.length,
+          },
+          history: rides,
+        });
       });
     });
   });
