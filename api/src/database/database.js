@@ -1,7 +1,10 @@
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
-// Cria o arquivo do banco de dados na pasta do projeto
-const db = new sqlite3.Database('./database.sqlite', (err) => {
+// Usa um caminho absoluto para evitar variar conforme o diretório de execução.
+const databasePath = path.resolve(__dirname, '..', '..', 'database.sqlite');
+
+const db = new sqlite3.Database(databasePath, (err) => {
     if (err) {
       console.error("Erro ao conectar ao banco:", err.message);
     } else {

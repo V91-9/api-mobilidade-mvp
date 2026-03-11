@@ -16,83 +16,62 @@
     <div class="app-shell">
       <header class="hero">
         <div class="hero-copy">
-          <p class="eyebrow"></p>
-          <h1>Painel de operações</h1>
+          <p class="eyebrow">Operacao local</p>
+          <h1>Painel espelhado para passageiro e motorista</h1>
           <p class="hero-text">
-            Interface para testar passageiros, motoristas, pagamento, despacho e historico
-            usando a API local. 
+            Como tudo esta sendo operado no mesmo dispositivo, a tela foi dividida em duas trilhas:
+            a esquerda fica o fluxo do passageiro e a direita o fluxo do motorista.
           </p>
-          <div class="hero-actions">
-            <button class="secondary-action" type="button" data-jump="#ride-request-form">
-              Ir para corrida
-            </button>
-            <button class="secondary-action" type="button" data-jump="#operations-panel">
-              Ver operacoes
-            </button>
-          </div>
         </div>
 
         <aside class="mission-card">
-          <p class="eyebrow">Sessao ativa</p>
-          <strong id="session-name">Nenhum usuario conectado</strong>
-          <p id="session-meta">
-            Cadastre ou autentique um passageiro para preencher IDs automaticamente nas etapas
-            seguintes.
+          <p class="eyebrow">Controle rapido</p>
+          <strong id="board-status">Aguardando sessoes</strong>
+          <p id="board-meta">
+            Autentique os dois lados separadamente para simular a jornada completa no mesmo navegador.
           </p>
           <dl class="session-stats">
             <div>
               <dt>Ride</dt>
-              <dd id="session-ride">-</dd>
-            </div>
-            <div>
-              <dt>Driver</dt>
-              <dd id="session-driver">-</dd>
-            </div>
-            <div>
-              <dt>Vehicle</dt>
-              <dd id="session-vehicle">-</dd>
+              <dd id="shared-ride">-</dd>
             </div>
             <div>
               <dt>Payment</dt>
-              <dd id="session-payment">-</dd>
+              <dd id="shared-payment">-</dd>
+            </div>
+            <div>
+              <dt>Passageiro</dt>
+              <dd id="shared-passenger">-</dd>
+            </div>
+            <div>
+              <dt>Motorista</dt>
+              <dd id="shared-driver">-</dd>
             </div>
           </dl>
         </aside>
       </header>
 
-      <section class="status-band">
-        <article class="status-card accent-orange">
-          <span>Preco atual</span>
-          <strong id="summary-price">R$ --</strong>
-          <small>Atualizado a partir da ultima corrida calculada</small>
-        </article>
-        <article class="status-card accent-green">
-          <span>Status da corrida</span>
-          <strong id="summary-status">Sem corrida ativa</strong>
-          <small id="summary-substatus">A jornada aparece aqui em tempo real</small>
-        </article>
-      </section>
-
       <main class="workspace">
-        <section class="operations-panel" id="operations-panel">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">Operacoes</p>
-              <h2>Painel de controle da API</h2>
+        <section class="lane-grid">
+          <section class="lane passenger-lane" id="passenger-lane">
+            <div class="lane-header">
+              <p class="section-kicker">Trilha esquerda</p>
+              <h2>Passageiro</h2>
+              <p id="passenger-meta" class="lane-meta">
+                Cadastre ou autentique o passageiro para liberar simulacao, corrida e pagamento.
+              </p>
             </div>
-          </div>
 
-          <div class="operation-grid">
-            <article class="operation-card wide">
+            <article class="operation-card" id="passenger-auth-card">
               <div class="card-head">
                 <div>
                   <p class="section-kicker">Conta</p>
                   <h3>Cadastro e login</h3>
                 </div>
-                <span class="tag">Essencial</span>
+                <span class="tag">Passageiro</span>
               </div>
               <div class="two-column">
-                <form id="register-form" class="panel-form">
+                <form id="passenger-register-form" class="panel-form">
                   <label>Nome <input name="name" required value="Ana Paula" /></label>
                   <label>Email <input name="email" type="email" required value="ana@example.com" /></label>
                   <label>CPF <input name="cpf" required value="12345678901" /></label>
@@ -102,41 +81,29 @@
                   <button type="submit">Criar passageiro</button>
                 </form>
 
-                <form id="login-form" class="panel-form">
+                <form id="passenger-login-form" class="panel-form">
                   <label>Email <input name="email" type="email" required value="ana@example.com" /></label>
                   <label>Senha <input name="password" type="password" required value="123456" /></label>
-                  <button type="submit">Entrar na sessao</button>
+                  <button type="submit">Entrar como passageiro</button>
                 </form>
               </div>
             </article>
 
-            <article class="operation-card">
+            <article class="operation-card passenger-session-card" hidden>
               <div class="card-head">
                 <div>
-                  <p class="section-kicker">Motorista</p>
-                  <h3>Perfil e veiculo</h3>
+                  <p class="section-kicker">Sessao ativa</p>
+                  <h3 id="passenger-session-title">Passageiro autenticado</h3>
                 </div>
-                <span class="tag">Setup</span>
+                <span class="tag">Em uso</span>
               </div>
-              <form id="driver-form" class="panel-form compact">
-                <label>User ID <input name="userId" type="number" data-fill="userId" required /></label>
-                <label>CNH <input name="cnh" required value="12345678999" /></label>
-                <button type="submit">Ativar perfil</button>
-              </form>
-              <form id="vehicle-form" class="panel-form compact">
-                <label>Driver ID <input name="driverId" type="number" data-fill="driverId" required /></label>
-                <label>Placa <input name="plate" required value="ABC1D23" /></label>
-                <label>Modelo <input name="model" required value="Toyota Corolla" /></label>
-                <label>Cor <input name="color" required value="Prata" /></label>
-                <button type="submit">Cadastrar veiculo</button>
-              </form>
-              <form id="driver-rating-form" class="panel-form compact">
-                <label>Driver ID <input name="driverId" type="number" data-fill="driverId" required /></label>
-                <button type="submit">Consultar avaliacao</button>
-              </form>
+              <p id="passenger-session-copy" class="lane-meta">Sessao de passageiro ativa.</p>
+              <button type="button" id="passenger-logout-button" class="ghost-button">
+                Sair do passageiro
+              </button>
             </article>
 
-            <article class="operation-card">
+            <article class="operation-card passenger-only" data-passenger-stage="ready">
               <div class="card-head">
                 <div>
                   <p class="section-kicker">Simulacao</p>
@@ -150,12 +117,10 @@
                 <label>Ou endereco <input name="address" value="Avenida Paulista, 1000" /></label>
                 <button type="submit">Buscar motoristas proximos</button>
               </form>
-              <div id="simulation-list" class="data-list empty">
-                Nenhuma simulacao executada.
-              </div>
+              <div id="simulation-list" class="data-list empty">Nenhuma simulacao executada.</div>
             </article>
 
-            <article class="operation-card wide ride-stage">
+            <article class="operation-card passenger-only" data-passenger-stage="ready">
               <div class="card-head">
                 <div>
                   <p class="section-kicker">Corrida</p>
@@ -165,7 +130,7 @@
               </div>
               <div class="two-column">
                 <form id="ride-request-form" class="panel-form">
-                  <label>User ID <input name="userId" type="number" data-fill="userId" required /></label>
+                  <label>User ID <input name="userId" type="number" data-fill="userId" data-context="passenger" required /></label>
                   <label>Tipo
                     <select name="rideType">
                       <option value="moto">Moto</option>
@@ -184,18 +149,18 @@
 
                 <div class="stack">
                   <form id="ride-lookup-form" class="panel-form compact">
-                    <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
+                    <label>Ride ID <input name="rideId" type="number" data-fill="rideId" data-context="shared" required /></label>
                     <button type="submit">Consultar detalhes</button>
                   </form>
 
                   <form id="ride-cancel-form" class="panel-form compact">
-                    <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
-                    <label>User ID <input name="userId" type="number" data-fill="userId" required /></label>
+                    <label>Ride ID <input name="rideId" type="number" data-fill="rideId" data-context="shared" required /></label>
+                    <label>User ID <input name="userId" type="number" data-fill="userId" data-context="passenger" required /></label>
                     <button type="submit">Cancelar corrida</button>
                   </form>
 
                   <form id="ride-history-form" class="panel-form compact">
-                    <label>User ID <input name="userId" type="number" data-fill="userId" required /></label>
+                    <label>User ID <input name="userId" type="number" data-fill="userId" data-context="passenger" required /></label>
                     <button type="submit">Consultar historico</button>
                   </form>
 
@@ -204,7 +169,7 @@
               </div>
             </article>
 
-            <article class="operation-card">
+            <article class="operation-card passenger-only" data-passenger-stage="payment">
               <div class="card-head">
                 <div>
                   <p class="section-kicker">Pagamento</p>
@@ -213,8 +178,8 @@
                 <span class="tag">Financeiro</span>
               </div>
               <form id="payment-create-form" class="panel-form compact">
-                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
-                <label>Valor <input name="amount" type="number" step="0.01" data-fill="ridePrice" required /></label>
+                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" data-context="shared" required /></label>
+                <label>Valor <input name="amount" type="number" step="0.01" data-fill="ridePrice" data-context="shared" required /></label>
                 <label>Metodo
                   <select name="paymentMethod">
                     <option value="pix" selected>PIX</option>
@@ -224,7 +189,7 @@
                 <button type="submit">Gerar pagamento</button>
               </form>
               <form id="payment-update-form" class="panel-form compact">
-                <label>Payment ID <input name="paymentId" type="number" data-fill="paymentId" required /></label>
+                <label>Payment ID <input name="paymentId" type="number" data-fill="paymentId" data-context="shared" required /></label>
                 <label>Status
                   <select name="status">
                     <option value="completed" selected>completed</option>
@@ -237,7 +202,122 @@
               </form>
             </article>
 
-            <article class="operation-card">
+            <article class="operation-card passenger-only" data-passenger-stage="closure">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Encerramento</p>
+                  <h3>Feedback da viagem</h3>
+                </div>
+                <span class="tag">Qualidade</span>
+              </div>
+              <form id="ride-rate-form" class="panel-form compact">
+                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" data-context="shared" required /></label>
+                <label>User ID <input name="userId" type="number" data-fill="userId" data-context="passenger" required /></label>
+                <label>Nota <input name="rating" type="number" min="1" max="5" value="5" required /></label>
+                <label>Comentario <textarea name="comment" rows="3">Viagem tranquila e motorista pontual.</textarea></label>
+                <button type="submit">Enviar avaliacao</button>
+              </form>
+            </article>
+          </section>
+
+          <section class="lane driver-lane" id="driver-lane">
+            <div class="lane-header">
+              <p class="section-kicker">Trilha direita</p>
+              <h2>Motorista</h2>
+              <p id="driver-meta" class="lane-meta">
+                Cadastre ou autentique o condutor para liberar perfil, veiculo, despacho e reputacao.
+              </p>
+            </div>
+
+            <article class="operation-card" id="driver-auth-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Conta</p>
+                  <h3>Cadastro e login</h3>
+                </div>
+                <span class="tag">Motorista</span>
+              </div>
+              <div class="two-column">
+                <form id="driver-register-user-form" class="panel-form">
+                  <label>Nome <input name="name" required value="Carlos Silva" /></label>
+                  <label>Email <input name="email" type="email" required value="carlos@example.com" /></label>
+                  <label>CPF <input name="cpf" required value="98765432100" /></label>
+                  <label>Telefone <input name="phone" required value="11988888888" /></label>
+                  <label>Senha <input name="password" type="password" required value="123456" /></label>
+                  <label>Nascimento <input name="birthdate" type="date" required value="1990-05-10" /></label>
+                  <button type="submit">Criar conta base</button>
+                </form>
+
+                <form id="driver-login-form" class="panel-form">
+                  <label>Email <input name="email" type="email" required value="carlos@example.com" /></label>
+                  <label>Senha <input name="password" type="password" required value="123456" /></label>
+                  <button type="submit">Entrar como motorista</button>
+                </form>
+              </div>
+            </article>
+
+            <article class="operation-card driver-session-card" hidden>
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Sessao ativa</p>
+                  <h3 id="driver-session-title">Motorista autenticado</h3>
+                </div>
+                <span class="tag">Em uso</span>
+              </div>
+              <p id="driver-session-copy" class="lane-meta">Sessao de motorista ativa.</p>
+              <div class="inline-actions session-actions">
+                <button type="button" id="toggle-vehicle-form" class="ghost-button">
+                  Cadastrar veiculo
+                </button>
+                <button type="button" id="toggle-driver-rating-form" class="ghost-button">
+                  Consultar avaliacao
+                </button>
+                <button type="button" id="driver-logout-button" class="ghost-button">
+                  Sair do motorista
+                </button>
+              </div>
+            </article>
+
+            <article class="operation-card driver-only" data-driver-stage="profile">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Perfil</p>
+                  <h3>Ativacao de motorista</h3>
+                </div>
+                <span class="tag">Onboarding</span>
+              </div>
+              <form id="driver-form" class="panel-form compact">
+                <label>User ID <input name="userId" type="number" data-fill="userId" data-context="driver" required /></label>
+                <label>CNH <input name="cnh" required value="12345678999" /></label>
+                <button type="submit">Ativar perfil</button>
+              </form>
+            </article>
+
+            <article class="operation-card driver-only" data-driver-stage="fleet">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Frota</p>
+                  <h3>Veiculo e reputacao</h3>
+                </div>
+                <span class="tag">Perfil ativo</span>
+              </div>
+              <div class="inline-actions">
+                <span id="driver-vehicle-badge" class="inline-status">Nenhum veiculo cadastrado</span>
+              </div>
+              <form id="vehicle-form" class="panel-form compact">
+                <label>Driver ID <input name="driverId" type="number" data-fill="driverId" data-context="driver" required /></label>
+                <label>Placa <input name="plate" required value="ABC1D23" /></label>
+                <label>Modelo <input name="model" required value="Toyota Corolla" /></label>
+                <label>Cor <input name="color" required value="Prata" /></label>
+                <button type="submit">Cadastrar veiculo</button>
+              </form>
+              <form id="driver-rating-form" class="panel-form compact">
+                <label>Driver ID <input name="driverId" type="number" data-fill="driverId" data-context="driver" required /></label>
+                <button type="submit">Consultar avaliacao</button>
+              </form>
+            </article>
+
+            <article class="operation-card driver-only" data-driver-stage="dispatch">
               <div class="card-head">
                 <div>
                   <p class="section-kicker">Despacho</p>
@@ -246,15 +326,15 @@
                 <span class="tag">Tempo real</span>
               </div>
               <form id="ride-accept-form" class="panel-form compact">
-                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
-                <label>Driver ID <input name="driverId" type="number" data-fill="driverId" required /></label>
-                <label>Vehicle ID <input name="vehicleId" type="number" data-fill="vehicleId" required /></label>
+                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" data-context="shared" required /></label>
+                <label>Driver ID <input name="driverId" type="number" data-fill="driverId" data-context="driver" required /></label>
+                <label>Vehicle ID <input name="vehicleId" type="number" data-fill="vehicleId" data-context="driver" required /></label>
                 <label>Lat motorista <input name="driverLat" type="number" step="any" value="-23.55052" /></label>
                 <label>Lng motorista <input name="driverLng" type="number" step="any" value="-46.633308" /></label>
                 <button type="submit">Aceitar corrida</button>
               </form>
               <form id="ride-status-form" class="panel-form compact">
-                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
+                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" data-context="shared" required /></label>
                 <label>Status
                   <select name="status">
                     <option value="arrived">arrived</option>
@@ -265,24 +345,7 @@
                 <button type="submit">Atualizar status</button>
               </form>
             </article>
-
-            <article class="operation-card">
-              <div class="card-head">
-                <div>
-                  <p class="section-kicker">Encerramento</p>
-                  <h3>Feedback e reputacao</h3>
-                </div>
-                <span class="tag">Qualidade</span>
-              </div>
-              <form id="ride-rate-form" class="panel-form compact">
-                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
-                <label>User ID <input name="userId" type="number" data-fill="userId" required /></label>
-                <label>Nota <input name="rating" type="number" min="1" max="5" value="5" required /></label>
-                <label>Comentario <textarea name="comment" rows="3">Viagem tranquila e motorista pontual.</textarea></label>
-                <button type="submit">Enviar avaliacao</button>
-              </form>
-            </article>
-          </div>
+          </section>
         </section>
 
         <section class="console-panel">

@@ -138,11 +138,20 @@ function verifyUser(email, password) {
 
         const query = `
           SELECT 
-            id 
+            d.id,
+            d.cnh,
+            v.id AS vehicle_id,
+            v.plate AS vehicle_plate,
+            v.model AS vehicle_model,
+            v.color AS vehicle_color
           FROM 
-            drivers 
+            drivers d
+          LEFT JOIN
+            vehicles v ON v.driver_id = d.id
           WHERE
-            user_id = ?
+            d.user_id = ?
+          ORDER BY
+            v.id DESC
         `;
 
         db.get(
@@ -164,7 +173,19 @@ function verifyUser(email, password) {
               phone: user.phone,
               isDriver: !!driver,
               driverDetails: driver
-                ? { driverId: driver.id, cnh: driver.cnh }
+                ? {
+                    driverId: driver.id,
+                    cnh: driver.cnh,
+                    vehicleId: driver.vehicle_id || null,
+                    vehicle: driver.vehicle_id
+                      ? {
+                          id: driver.vehicle_id,
+                          plate: driver.vehicle_plate,
+                          model: driver.vehicle_model,
+                          color: driver.vehicle_color,
+                        }
+                      : null,
+                  }
                 : null
             }
           });

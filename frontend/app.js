@@ -1,28 +1,61 @@
 const state = {
-  userId: "",
-  userName: "",
-  driverId: "",
-  vehicleId: "",
-  rideId: "",
-  ridePrice: "",
-  paymentId: "",
-  rideStatus: "",
-  nextStep: "Crie ou entre em uma conta",
+  passenger: {
+    loggedIn: false,
+    userId: "",
+    userName: "",
+    rideId: "",
+    ridePrice: "",
+    paymentId: "",
+    paymentStatus: "",
+    rideStatus: "",
+  },
+  driver: {
+    loggedIn: false,
+    userId: "",
+    userName: "",
+    isDriver: false,
+    driverId: "",
+    vehicleId: "",
+    vehicleFormOpen: true,
+    ratingFormOpen: false,
+    rideId: "",
+    rideStatus: "",
+  },
+  shared: {
+    rideId: "",
+    ridePrice: "",
+    paymentId: "",
+    paymentStatus: "",
+  },
 };
 
 const output = document.getElementById("output");
 const flash = document.getElementById("flash");
-const sessionName = document.getElementById("session-name");
-const sessionMeta = document.getElementById("session-meta");
-const summaryPrice = document.getElementById("summary-price");
-const summaryStatus = document.getElementById("summary-status");
-const summarySubstatus = document.getElementById("summary-substatus");
-const sessionRide = document.getElementById("session-ride");
-const sessionDriver = document.getElementById("session-driver");
-const sessionVehicle = document.getElementById("session-vehicle");
-const sessionPayment = document.getElementById("session-payment");
+const boardStatus = document.getElementById("board-status");
+const boardMeta = document.getElementById("board-meta");
+const sharedRide = document.getElementById("shared-ride");
+const sharedPayment = document.getElementById("shared-payment");
+const sharedPassenger = document.getElementById("shared-passenger");
+const sharedDriver = document.getElementById("shared-driver");
+const passengerMeta = document.getElementById("passenger-meta");
+const driverMeta = document.getElementById("driver-meta");
+const passengerAuthCard = document.getElementById("passenger-auth-card");
+const driverAuthCard = document.getElementById("driver-auth-card");
+const passengerSessionCard = document.querySelector(".passenger-session-card");
+const driverSessionCard = document.querySelector(".driver-session-card");
+const passengerSessionTitle = document.getElementById("passenger-session-title");
+const passengerSessionCopy = document.getElementById("passenger-session-copy");
+const driverSessionTitle = document.getElementById("driver-session-title");
+const driverSessionCopy = document.getElementById("driver-session-copy");
+const vehicleForm = document.getElementById("vehicle-form");
+const toggleVehicleFormButton = document.getElementById("toggle-vehicle-form");
+const driverRatingForm = document.getElementById("driver-rating-form");
+const toggleDriverRatingFormButton = document.getElementById("toggle-driver-rating-form");
+const driverVehicleBadge = document.getElementById("driver-vehicle-badge");
 const simulationList = document.getElementById("simulation-list");
 const historyList = document.getElementById("history-list");
+const passengerCards = Array.from(document.querySelectorAll(".passenger-only"));
+const driverCards = Array.from(document.querySelectorAll(".driver-only"));
 const API_BASE_URL = "http://localhost:3000";
 
 function formatCurrency(value) {
@@ -53,40 +86,154 @@ function parseForm(form) {
   return data;
 }
 
+function getContextValue(context, key) {
+  return state[context]?.[key] ?? "";
+}
+
 function syncInputs() {
   document.querySelectorAll("[data-fill]").forEach((input) => {
+    const context = input.dataset.context || "shared";
     const key = input.dataset.fill;
-    if (state[key] !== "" && !input.matches(":focus")) {
-      input.value = state[key];
+    const value = getContextValue(context, key);
+
+    if (value !== "" && !input.matches(":focus")) {
+      input.value = value;
     }
   });
 }
 
-function updateSession() {
-  sessionName.textContent = state.userName
-    ? `${state.userName} (${state.userId})`
-    : "Nenhum usuario conectado";
+function renderPassengerLane() {
+  const passenger = state.passenger;
 
-  const details = [];
-  if (state.driverId) details.push(`driver ${state.driverId}`);
-  if (state.vehicleId) details.push(`vehicle ${state.vehicleId}`);
-  if (state.rideId) details.push(`ride ${state.rideId}`);
-  if (state.paymentId) details.push(`payment ${state.paymentId}`);
+  passengerAuthCard.hidden = passenger.loggedIn;
+  passengerSessionCard.hidden = !passenger.loggedIn;
 
-  sessionMeta.textContent =
-    details.length > 0
-      ? `Contexto atual: ${details.join(" | ")}`
-      : "Cadastre ou autentique um passageiro para preencher IDs automaticamente nas etapas seguintes.";
+  if (passenger.loggedIn) {
+    passengerSessionTitle.textContent = `${passenger.userName} (${passenger.userId})`;
+    passengerSessionCopy.textContent = passenger.rideId
+      ? `Sessao ativa com a corrida ${passenger.rideId} em status ${passenger.rideStatus || "em preparacao"}.`
+      : "Sessao ativa. O bloco de cadastro/login foi recolhido e o fluxo do passageiro esta liberado.";
+  }
 
-  sessionRide.textContent = state.rideId || "-";
-  sessionDriver.textContent = state.driverId || "-";
-  sessionVehicle.textContent = state.vehicleId || "-";
-  sessionPayment.textContent = state.paymentId || "-";
+  passengerCards.forEach((card) => {
+    const stages = (card.dataset.passengerStage || "").split(/\s+/).filter(Boolean);
+    const show = passenger.loggedIn && stages.some((stage) => {
+      if (stage === "ready") {
+        return !passenger.rideId || passenger.rideStatus === "canceled";
+      }
 
-  summaryPrice.textContent = formatCurrency(state.ridePrice);
-  summaryStatus.textContent = state.rideStatus || "Sem corrida ativa";
+      if (stage === "payment") {
+        return (
+          passenger.rideStatus === "awaiting_payment" ||
+          (Boolean(passenger.paymentId) && !["completed", "requested", "accepted", "arrived", "in_progress", "canceled"].includes(passenger.rideStatus))
+        );
+      }
 
+      if (stage === "closure") {
+        return passenger.rideStatus === "completed";
+      }
+
+      return false;
+    });
+
+    card.hidden = !show;
+  });
+
+  passengerMeta.textContent = passenger.loggedIn
+    ? passenger.rideId
+      ? `Passageiro autenticado como ${passenger.userName}. Corrida atual ${passenger.rideId} com status ${passenger.rideStatus || "em preparacao"}.`
+      : `Passageiro autenticado como ${passenger.userName}. Simulacao e solicitacao de corrida liberadas.`
+    : "Cadastre ou autentique o passageiro para liberar simulacao, corrida e pagamento.";
+}
+
+function renderDriverLane() {
+  const driver = state.driver;
+
+  driverAuthCard.hidden = driver.loggedIn;
+  driverSessionCard.hidden = !driver.loggedIn;
+
+  if (driver.loggedIn) {
+    driverSessionTitle.textContent = `${driver.userName} (${driver.userId})`;
+    driverSessionCopy.textContent = driver.isDriver
+      ? driver.vehicleId
+        ? `Perfil de motorista ativo com veiculo ${driver.vehicleId}.`
+        : "Perfil de motorista ativo. Falta cadastrar um veiculo para operar."
+      : "Sessao ativa. O proximo passo e ativar o perfil de motorista.";
+  }
+
+  driverCards.forEach((card) => {
+    const stages = (card.dataset.driverStage || "").split(/\s+/).filter(Boolean);
+    const show = driver.loggedIn && stages.some((stage) => {
+      if (stage === "profile") {
+        return !driver.isDriver;
+      }
+
+      if (stage === "fleet") {
+        return driver.isDriver && (!driver.vehicleId || driver.vehicleFormOpen || driver.ratingFormOpen);
+      }
+
+      if (stage === "dispatch") {
+        return driver.isDriver && Boolean(driver.vehicleId);
+      }
+
+      return false;
+    });
+
+    card.hidden = !show;
+  });
+
+  if (driver.isDriver) {
+    driverVehicleBadge.textContent = driver.vehicleId
+      ? `Veiculo ativo: ${driver.vehicleId}`
+      : "Nenhum veiculo cadastrado";
+  } else {
+    driverVehicleBadge.textContent = "Ative o perfil primeiro";
+  }
+
+  vehicleForm.hidden = !driver.vehicleFormOpen;
+  driverRatingForm.hidden = !driver.ratingFormOpen;
+  toggleVehicleFormButton.hidden = !driver.loggedIn || !driver.isDriver;
+  toggleDriverRatingFormButton.hidden = !driver.loggedIn || !driver.isDriver;
+  toggleVehicleFormButton.textContent = "Cadastrar veiculo";
+  toggleDriverRatingFormButton.textContent = driver.ratingFormOpen ? "Esconder avaliacao" : "Consultar avaliacao";
+
+  driverMeta.textContent = driver.loggedIn
+    ? !driver.isDriver
+      ? `Condutor autenticado como ${driver.userName}. Falta ativar o perfil de motorista.`
+      : driver.vehicleId
+        ? `Motorista autenticado como ${driver.userName}. Veiculo ${driver.vehicleId} pronto para despacho.`
+        : `Motorista autenticado como ${driver.userName}. Falta cadastrar um veiculo para operar corridas.`
+    : "Cadastre ou autentique o condutor para liberar perfil, veiculo, despacho e reputacao.";
+}
+
+function renderBoard() {
+  sharedRide.textContent = state.shared.rideId || "-";
+  sharedPayment.textContent = state.shared.paymentId || "-";
+  sharedPassenger.textContent = state.passenger.userId || "-";
+  sharedDriver.textContent = state.driver.driverId || "-";
+
+  if (!state.passenger.loggedIn && !state.driver.loggedIn) {
+    boardStatus.textContent = "Aguardando sessoes";
+    boardMeta.textContent = "Autentique os dois lados separadamente para simular a jornada completa no mesmo navegador.";
+  } else if (state.passenger.loggedIn && !state.driver.loggedIn) {
+    boardStatus.textContent = "Passageiro ativo";
+    boardMeta.textContent = "A trilha esquerda ja esta autenticada. Falta autenticar ou cadastrar o motorista na trilha direita.";
+  } else if (!state.passenger.loggedIn && state.driver.loggedIn) {
+    boardStatus.textContent = "Motorista ativo";
+    boardMeta.textContent = "A trilha direita ja esta autenticada. Falta autenticar ou cadastrar o passageiro na trilha esquerda.";
+  } else {
+    boardStatus.textContent = "Dois lados ativos";
+    boardMeta.textContent = state.shared.rideId
+      ? `Corrida compartilhada ${state.shared.rideId} pronta para ser operada entre as duas colunas.`
+      : "As duas sessoes estao ativas. Crie uma corrida na esquerda e aceite na direita.";
+  }
+}
+
+function updateUi() {
   syncInputs();
+  renderPassengerLane();
+  renderDriverLane();
+  renderBoard();
 }
 
 function renderOutput(title, payload) {
@@ -98,15 +245,9 @@ function showFlash(message, kind = "success") {
   flash.className = `flash ${kind}`;
 }
 
-function setNextStep(message, substatus) {
-  state.nextStep = message;
-  if (substatus) {
-    summarySubstatus.textContent = substatus;
-  }
-}
-
 function renderSimulation(payload) {
   const drivers = payload?.nearbyDrivers || [];
+
   if (drivers.length === 0) {
     simulationList.textContent = "Nenhum motorista retornado pela simulacao.";
     simulationList.className = "data-list empty";
@@ -129,6 +270,7 @@ function renderSimulation(payload) {
 
 function renderHistory(payload) {
   const entries = payload?.history || payload?.rides || [];
+
   if (entries.length === 0) {
     historyList.textContent = payload?.message || "Nenhum historico encontrado.";
     historyList.className = "data-list empty";
@@ -151,117 +293,146 @@ function renderHistory(payload) {
     .join("");
 }
 
-function updateStateFromResponse(payload) {
+function updatePassengerState(payload, source) {
+  const passenger = state.passenger;
   const user = payload?.user;
-  const driver = payload?.driver;
-  const vehicle = payload?.vehicle;
   const ride = payload?.ride;
   const payment = payload?.payment;
 
-  if (user?.id) {
-    state.userId = user.id;
-    state.userName = user.name || state.userName;
-    if (user.driverDetails?.driverId) {
-      state.driverId = user.driverDetails.driverId;
-    }
-    setNextStep(
-      user.driverDetails?.driverId ? "Cadastre um veiculo para o motorista." : "Ative o perfil de motorista.",
-      "Conta autenticada e pronta para seguir o fluxo."
-    );
-  }
-
-  if (driver?.id) {
-    state.driverId = driver.id;
-    setNextStep("Cadastre um veiculo para concluir o setup do motorista.", "Perfil de motorista ativo.");
-  }
-
-  if (vehicle?.id) {
-    state.vehicleId = vehicle.id;
-    setNextStep("Rode uma simulacao ou solicite uma corrida.", "Motorista e veiculo prontos para operar.");
+  if (source === "passenger-login-form" && user?.id) {
+    passenger.loggedIn = true;
+    passenger.userId = user.id;
+    passenger.userName = user.name || "";
   }
 
   if (ride?.id) {
-    state.rideId = ride.id;
-    state.rideStatus = ride.status || state.rideStatus;
-    if (ride.price) {
-      state.ridePrice = ride.price;
-    }
+    passenger.rideId = ride.id;
+    passenger.rideStatus = ride.status || passenger.rideStatus;
+    passenger.ridePrice = ride.price || passenger.ridePrice;
+    state.shared.rideId = ride.id;
+    state.shared.ridePrice = ride.price || state.shared.ridePrice;
   }
 
   if (payload?.tripDetails?.priceBRL) {
-    state.ridePrice = payload.tripDetails.priceBRL;
-    state.rideStatus = payload?.ride?.status || "awaiting_payment";
-    setNextStep("Gere o pagamento para liberar a corrida aos motoristas.", "Corrida aguardando confirmacao financeira.");
-  }
-
-  if (payload?.driverApproach) {
-    state.rideStatus = payload?.ride?.status || "accepted";
-    setNextStep("Atualize a corrida para arrived, in_progress e completed.", "Despacho confirmado.");
+    passenger.ridePrice = payload.tripDetails.priceBRL;
+    passenger.rideStatus = payload?.ride?.status || "awaiting_payment";
+    state.shared.ridePrice = payload.tripDetails.priceBRL;
   }
 
   if (payment?.id) {
-    state.paymentId = payment.id;
-    setNextStep("Confirme o pagamento para liberar o aceite.", "Pagamento criado com status pending.");
+    passenger.paymentId = payment.id;
+    passenger.paymentStatus = payment.status || "pending";
+    state.shared.paymentId = payment.id;
+    state.shared.paymentStatus = payment.status || "pending";
   }
 
   if (payload?.updateDetails?.paymentId) {
-    state.paymentId = payload.updateDetails.paymentId;
+    passenger.paymentId = payload.updateDetails.paymentId;
+    state.shared.paymentId = payload.updateDetails.paymentId;
+    passenger.paymentStatus = payload.updateDetails.newStatus || passenger.paymentStatus;
+    state.shared.paymentStatus = payload.updateDetails.newStatus || state.shared.paymentStatus;
+
     if (payload.updateDetails.newStatus === "completed") {
-      state.rideStatus = "requested";
-      setNextStep("Aceite a corrida com motorista e veiculo.", "Pagamento concluido e corrida liberada.");
+      passenger.rideStatus = "requested";
+    }
+  }
+
+  if (payload?.rideStatus?.rideId) {
+    passenger.rideId = payload.rideStatus.rideId;
+    passenger.rideStatus = payload.rideStatus.status || "canceled";
+
+    if (passenger.rideStatus === "canceled") {
+      passenger.paymentStatus = "";
+      passenger.paymentId = "";
+      state.shared.paymentStatus = "";
+      state.shared.paymentId = "";
     }
   }
 
   if (payload?.updateDetails?.rideId) {
-    state.rideId = payload.updateDetails.rideId;
-    state.rideStatus = payload.updateDetails.currentStatus;
-
-    const labels = {
-      arrived: "Motorista chegou ao embarque.",
-      in_progress: "Passageiro embarcado. Corrida em andamento.",
-      completed: "Corrida concluida. Agora voce pode avaliar o motorista.",
-    };
-
-    setNextStep(
-      payload.updateDetails.currentStatus === "completed"
-        ? "Envie a avaliacao da corrida e consulte o historico."
-        : "Continue a evolucao operacional da corrida.",
-      labels[payload.updateDetails.currentStatus] || "Status atualizado."
-    );
-
-  }
-
-  if (payload?.rideStatus?.rideId) {
-    state.rideId = payload.rideStatus.rideId;
-    state.rideStatus = payload.rideStatus.status || "canceled";
-    setNextStep("Crie uma nova corrida ou consulte o historico.", "Cancelamento registrado.");
-  }
-
-  if (payload?.ratingDetails) {
-    setNextStep("Use esse score para validar a qualidade do motorista.", "Avaliacao consolidada.");
+    passenger.rideId = payload.updateDetails.rideId;
+    passenger.rideStatus = payload.updateDetails.currentStatus;
   }
 
   if (payload?.review?.rideId) {
-    setNextStep("Consulte o historico do usuario para fechar o fluxo.", "Feedback salvo com sucesso.");
+    passenger.rideStatus = "completed";
   }
 
-  if (payload?.nearbyDrivers) {
-    setNextStep("Com oferta validada, siga para a solicitacao da corrida.", "Simulacao concluida.");
+  if (passenger.rideStatus === "completed") {
+    passenger.paymentStatus = "completed";
+  }
+}
+
+function updateDriverState(payload, source) {
+  const driverState = state.driver;
+  const user = payload?.user;
+  const driver = payload?.driver;
+  const vehicle = payload?.vehicle;
+
+  if (source === "driver-login-form" && user?.id) {
+    driverState.loggedIn = true;
+    driverState.userId = user.id;
+    driverState.userName = user.name || "";
+    driverState.isDriver = Boolean(user.isDriver);
+    driverState.driverId = user.driverDetails?.driverId || driverState.driverId;
+    driverState.vehicleId = user.driverDetails?.vehicleId || driverState.vehicleId;
+    driverState.vehicleFormOpen = !driverState.vehicleId;
+    driverState.ratingFormOpen = false;
   }
 
-  if (payload?.history || payload?.rides) {
-    setNextStep("Historico carregado para auditoria do usuario.", "Fluxo consultivo concluido.");
+  if (driver?.id) {
+    driverState.isDriver = true;
+    driverState.driverId = driver.id;
+    driverState.vehicleFormOpen = !driverState.vehicleId;
   }
 
-  if (payload?.ride?.status && !payload?.driverApproach && !payload?.tripDetails) {
-    state.rideStatus = payload.ride.status;
+  if (vehicle?.id) {
+    driverState.vehicleId = vehicle.id;
+    driverState.vehicleFormOpen = false;
   }
 
-  updateSession();
+  if (payload?.driverApproach) {
+    driverState.rideId = payload?.ride?.id || state.shared.rideId;
+    driverState.rideStatus = payload?.ride?.status || "accepted";
+  }
+
+  if (payload?.updateDetails?.rideId) {
+    driverState.rideId = payload.updateDetails.rideId;
+    driverState.rideStatus = payload.updateDetails.currentStatus;
+  }
+}
+
+function synchronizeSharedRideState() {
+  if (state.passenger.rideId) {
+    state.shared.rideId = state.passenger.rideId;
+  }
+
+  if (state.passenger.ridePrice) {
+    state.shared.ridePrice = state.passenger.ridePrice;
+  }
+
+  if (state.passenger.paymentId) {
+    state.shared.paymentId = state.passenger.paymentId;
+  }
+
+  if (state.passenger.paymentStatus) {
+    state.shared.paymentStatus = state.passenger.paymentStatus;
+  }
+
+  if (state.shared.rideId && !state.driver.rideId) {
+    state.driver.rideId = state.shared.rideId;
+  }
+
+  if (state.passenger.rideStatus === "requested" && state.driver.isDriver) {
+    state.driver.rideStatus = "requested";
+  }
+
+  if (state.driver.rideStatus && state.driver.rideId === state.shared.rideId) {
+    state.passenger.rideStatus = state.driver.rideStatus;
+  }
 }
 
 async function request(method, url, body) {
-
   const response = await fetch(API_BASE_URL + url, {
     method,
     headers: {
@@ -279,17 +450,25 @@ async function request(method, url, body) {
   return payload;
 }
 
-function bindForm(id, handler, afterRender) {
+function bindForm(id, handler, afterRender, stateUpdater) {
   document.getElementById(id).addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
 
     try {
       const payload = await handler(parseForm(form));
-      updateStateFromResponse(payload);
+
+      if (stateUpdater) {
+        stateUpdater(payload, id);
+      }
+
+      synchronizeSharedRideState();
+      updateUi();
+
       if (afterRender) {
         afterRender(payload);
       }
+
       renderOutput(`${form.querySelector("h3, h2, button")?.textContent || id}`, payload);
       showFlash(payload.message || "Operacao concluida.");
     } catch (error) {
@@ -299,36 +478,92 @@ function bindForm(id, handler, afterRender) {
   });
 }
 
-bindForm("register-form", (data) => request("POST", "/register", data));
-bindForm("login-form", (data) => request("POST", "/login", data));
-bindForm("driver-form", (data) => request("POST", "/driver/register", data));
-bindForm("vehicle-form", (data) => request("POST", "/vehicle/add", data));
-bindForm("driver-rating-form", (data) => request("GET", `/driver/${data.driverId}/rating`));
-bindForm(
-  "simulation-form",
-  (data) => {
-    const params = new URLSearchParams();
+bindForm("passenger-register-form", (data) => request("POST", "/register", data));
+bindForm("passenger-login-form", (data) => request("POST", "/login", data), null, updatePassengerState);
+bindForm("simulation-form", (data) => {
+  const params = new URLSearchParams();
 
-    if (data.lat && data.lng) {
-      params.set("lat", data.lat);
-      params.set("lng", data.lng);
-    } else if (data.address) {
-      params.set("address", data.address);
-    }
+  if (data.lat && data.lng) {
+    params.set("lat", data.lat);
+    params.set("lng", data.lng);
+  } else if (data.address) {
+    params.set("address", data.address);
+  }
 
-    return request("GET", `/simulation/nearby-drivers?${params.toString()}`);
-  },
-  renderSimulation
-);
-bindForm("ride-request-form", (data) => request("POST", "/ride/request", data));
-bindForm("ride-lookup-form", (data) => request("GET", `/ride/${data.rideId}`));
-bindForm("ride-cancel-form", (data) => request("POST", "/ride/cancel", data));
+  return request("GET", `/simulation/nearby-drivers?${params.toString()}`);
+}, renderSimulation);
+bindForm("ride-request-form", (data) => request("POST", "/ride/request", data), null, updatePassengerState);
+bindForm("ride-lookup-form", (data) => request("GET", `/ride/${data.rideId}`), null, updatePassengerState);
+bindForm("ride-cancel-form", (data) => request("POST", "/ride/cancel", data), null, updatePassengerState);
 bindForm("ride-history-form", (data) => request("GET", `/user/${data.userId}/rides`), renderHistory);
-bindForm("payment-create-form", (data) => request("POST", "/payment/create", data));
-bindForm("payment-update-form", (data) => request("POST", "/payment/update", data));
-bindForm("ride-accept-form", (data) => request("POST", "/ride/accept", data));
-bindForm("ride-status-form", (data) => request("POST", "/ride/status", data));
-bindForm("ride-rate-form", (data) => request("POST", "/ride/rate", data));
+bindForm("payment-create-form", (data) => request("POST", "/payment/create", data), null, updatePassengerState);
+bindForm("payment-update-form", (data) => request("POST", "/payment/update", data), null, updatePassengerState);
+bindForm("ride-rate-form", (data) => request("POST", "/ride/rate", data), null, updatePassengerState);
+
+bindForm("driver-register-user-form", (data) => request("POST", "/register", data));
+bindForm("driver-login-form", (data) => request("POST", "/login", data), null, updateDriverState);
+bindForm("driver-form", (data) => request("POST", "/driver/register", data), null, updateDriverState);
+bindForm("vehicle-form", (data) => request("POST", "/vehicle/add", data), null, updateDriverState);
+bindForm("driver-rating-form", (data) => request("GET", `/driver/${data.driverId}/rating`));
+bindForm("ride-accept-form", (data) => request("POST", "/ride/accept", data), null, updateDriverState);
+bindForm("ride-status-form", (data) => request("POST", "/ride/status", data), null, (payload, source) => {
+  updatePassengerState(payload, source);
+  updateDriverState(payload, source);
+});
+
+document.getElementById("passenger-logout-button").addEventListener("click", () => {
+  state.passenger = {
+    loggedIn: false,
+    userId: "",
+    userName: "",
+    rideId: "",
+    ridePrice: "",
+    paymentId: "",
+    paymentStatus: "",
+    rideStatus: "",
+  };
+
+  state.shared = {
+    rideId: state.driver.rideId || "",
+    ridePrice: "",
+    paymentId: "",
+    paymentStatus: "",
+  };
+
+  simulationList.textContent = "Nenhuma simulacao executada.";
+  simulationList.className = "data-list empty";
+  historyList.textContent = "Nenhum historico consultado.";
+  historyList.className = "data-list empty";
+
+  updateUi();
+});
+
+document.getElementById("driver-logout-button").addEventListener("click", () => {
+  state.driver = {
+    loggedIn: false,
+    userId: "",
+    userName: "",
+    isDriver: false,
+    driverId: "",
+    vehicleId: "",
+    vehicleFormOpen: true,
+    ratingFormOpen: false,
+    rideId: "",
+    rideStatus: "",
+  };
+
+  updateUi();
+});
+
+toggleVehicleFormButton.addEventListener("click", () => {
+  state.driver.vehicleFormOpen = !state.driver.vehicleFormOpen;
+  updateUi();
+});
+
+toggleDriverRatingFormButton.addEventListener("click", () => {
+  state.driver.ratingFormOpen = !state.driver.ratingFormOpen;
+  updateUi();
+});
 
 document.getElementById("clear-output").addEventListener("click", () => {
   output.textContent = "Pronto para consumir a API local.";
@@ -336,13 +571,4 @@ document.getElementById("clear-output").addEventListener("click", () => {
   flash.textContent = "";
 });
 
-document.querySelectorAll("[data-jump]").forEach((button) => {
-  button.addEventListener("click", () => {
-    document.querySelector(button.dataset.jump)?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  });
-});
-
-updateSession();
+updateUi();
