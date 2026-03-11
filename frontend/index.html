@@ -20,7 +20,7 @@
         </div>
 
         <aside class="mission-card">
-          <p class="eyebrow">Controle rapido</p>
+          <p class="eyebrow">Dashboard</p>
           <strong id="board-status">Aguardando sessões</strong>
           <p id="board-meta">
             Autentique os dois lados separadamente para simular a jornada completa no mesmo navegador.
@@ -97,6 +97,9 @@
                 <button type="button" id="toggle-simulation-form" class="ghost-button">
                   Buscar motoristas proximos
                 </button>
+                <button type="button" id="toggle-history-form" class="ghost-button">
+                  Consultar historico
+                </button>
                 <button type="button" id="passenger-logout-button" class="ghost-button">
                   Sair do passageiro
                 </button>
@@ -159,12 +162,12 @@
                     <button type="submit">Cancelar corrida</button>
                   </form>
 
-                  <form id="ride-history-form" class="panel-form compact">
+                  <form id="ride-history-form" class="panel-form compact" hidden>
                     <label>User ID <input name="userId" type="number" data-fill="userId" data-context="passenger" required /></label>
                     <button type="submit">Consultar historico</button>
                   </form>
 
-                  <div id="history-list" class="data-list empty">Nenhum historico consultado.</div>
+                  <div id="history-list" class="data-list empty" hidden>Nenhum historico consultado.</div>
                 </div>
               </div>
             </article>

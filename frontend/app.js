@@ -4,6 +4,7 @@ const state = {
     userId: "",
     userName: "",
     simulationFormOpen: false,
+    historyFormOpen: false,
     rideId: "",
     ridePrice: "",
     paymentId: "",
@@ -48,6 +49,8 @@ const passengerSessionTitle = document.getElementById("passenger-session-title")
 const passengerSessionCopy = document.getElementById("passenger-session-copy");
 const simulationForm = document.getElementById("simulation-form");
 const toggleSimulationFormButton = document.getElementById("toggle-simulation-form");
+const rideHistoryForm = document.getElementById("ride-history-form");
+const toggleHistoryFormButton = document.getElementById("toggle-history-form");
 const rideLookupForm = document.getElementById("ride-lookup-form");
 const rideCancelForm = document.getElementById("ride-cancel-form");
 const driverSessionTitle = document.getElementById("driver-session-title");
@@ -155,10 +158,16 @@ function renderPassengerLane() {
     : "Cadastre ou autentique o passageiro para liberar simulacao, corrida e pagamento.";
 
   simulationForm.hidden = !passenger.simulationFormOpen;
+  rideHistoryForm.hidden = !passenger.historyFormOpen;
+  historyList.hidden = !passenger.historyFormOpen;
   toggleSimulationFormButton.hidden = !passenger.loggedIn || Boolean(passenger.rideId && passenger.rideStatus !== "canceled");
+  toggleHistoryFormButton.hidden = !passenger.loggedIn;
   toggleSimulationFormButton.textContent = passenger.simulationFormOpen
     ? "Esconder busca de motoristas"
     : "Buscar motoristas proximos";
+  toggleHistoryFormButton.textContent = passenger.historyFormOpen
+    ? "Esconder historico"
+    : "Consultar historico";
   const ridePaid = ["requested", "accepted", "arrived", "in_progress", "completed"].includes(passenger.rideStatus);
   rideLookupForm.hidden = !ridePaid;
   rideCancelForm.hidden = !ridePaid;
@@ -289,6 +298,7 @@ function renderSimulation(payload) {
 }
 
 function renderHistory(payload) {
+  historyList.hidden = false;
   const entries = payload?.history || payload?.rides || [];
 
   if (entries.length === 0) {
@@ -324,6 +334,7 @@ function updatePassengerState(payload, source) {
     passenger.userId = user.id;
     passenger.userName = user.name || "";
     passenger.simulationFormOpen = false;
+    passenger.historyFormOpen = false;
   }
 
   if (ride?.id) {
@@ -365,6 +376,7 @@ function updatePassengerState(payload, source) {
 
     if (passenger.rideStatus === "canceled") {
       passenger.simulationFormOpen = false;
+      passenger.historyFormOpen = false;
       passenger.paymentStatus = "";
       passenger.paymentId = "";
       state.shared.paymentStatus = "";
@@ -383,6 +395,8 @@ function updatePassengerState(payload, source) {
     passenger.paymentId = "";
     passenger.paymentStatus = "";
     passenger.rideStatus = "";
+    passenger.simulationFormOpen = false;
+    passenger.historyFormOpen = false;
     state.shared.rideId = "";
     state.shared.ridePrice = "";
     state.shared.paymentId = "";
@@ -548,6 +562,7 @@ document.getElementById("passenger-logout-button").addEventListener("click", () 
     userId: "",
     userName: "",
     simulationFormOpen: false,
+    historyFormOpen: false,
     rideId: "",
     ridePrice: "",
     paymentId: "",
@@ -566,12 +581,21 @@ document.getElementById("passenger-logout-button").addEventListener("click", () 
   simulationList.className = "data-list empty";
   historyList.textContent = "Nenhum historico consultado.";
   historyList.className = "data-list empty";
+  historyList.hidden = true;
 
   updateUi();
 });
 
 toggleSimulationFormButton.addEventListener("click", () => {
   state.passenger.simulationFormOpen = !state.passenger.simulationFormOpen;
+  updateUi();
+});
+
+toggleHistoryFormButton.addEventListener("click", () => {
+  state.passenger.historyFormOpen = !state.passenger.historyFormOpen;
+  if (!state.passenger.historyFormOpen) {
+    historyList.hidden = true;
+  }
   updateUi();
 });
 

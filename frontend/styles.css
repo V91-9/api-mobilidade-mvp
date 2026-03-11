@@ -327,6 +327,12 @@ button {
   transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
 }
 
+#passenger-login-form button,
+#driver-login-form button {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
 button:hover {
   transform: translateY(-1px);
   filter: saturate(1.06);
