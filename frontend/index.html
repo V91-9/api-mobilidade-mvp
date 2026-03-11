@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VrumVrum</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"></p>
+          <h1>Painel de operações</h1>
+          <p class="hero-text">
+            Interface para testar passageiros, motoristas, pagamento, despacho e historico
+            usando a API local. 
+          </p>
+          <div class="hero-actions">
+            <button class="secondary-action" type="button" data-jump="#ride-request-form">
+              Ir para corrida
+            </button>
+            <button class="secondary-action" type="button" data-jump="#operations-panel">
+              Ver operacoes
+            </button>
+          </div>
+        </div>
+
+        <aside class="mission-card">
+          <p class="eyebrow">Sessao ativa</p>
+          <strong id="session-name">Nenhum usuario conectado</strong>
+          <p id="session-meta">
+            Cadastre ou autentique um passageiro para preencher IDs automaticamente nas etapas
+            seguintes.
+          </p>
+          <dl class="session-stats">
+            <div>
+              <dt>Ride</dt>
+              <dd id="session-ride">-</dd>
+            </div>
+            <div>
+              <dt>Driver</dt>
+              <dd id="session-driver">-</dd>
+            </div>
+            <div>
+              <dt>Vehicle</dt>
+              <dd id="session-vehicle">-</dd>
+            </div>
+            <div>
+              <dt>Payment</dt>
+              <dd id="session-payment">-</dd>
+            </div>
+          </dl>
+        </aside>
+      </header>
+
+      <section class="status-band">
+        <article class="status-card accent-orange">
+          <span>Preco atual</span>
+          <strong id="summary-price">R$ --</strong>
+          <small>Atualizado a partir da ultima corrida calculada</small>
+        </article>
+        <article class="status-card accent-green">
+          <span>Status da corrida</span>
+          <strong id="summary-status">Sem corrida ativa</strong>
+          <small id="summary-substatus">A jornada aparece aqui em tempo real</small>
+        </article>
+      </section>
+
+      <main class="workspace">
+        <section class="operations-panel" id="operations-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Operacoes</p>
+              <h2>Painel de controle da API</h2>
+            </div>
+          </div>
+
+          <div class="operation-grid">
+            <article class="operation-card wide">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Conta</p>
+                  <h3>Cadastro e login</h3>
+                </div>
+                <span class="tag">Essencial</span>
+              </div>
+              <div class="two-column">
+                <form id="register-form" class="panel-form">
+                  <label>Nome <input name="name" required value="Ana Paula" /></label>
+                  <label>Email <input name="email" type="email" required value="ana@example.com" /></label>
+                  <label>CPF <input name="cpf" required value="12345678901" /></label>
+                  <label>Telefone <input name="phone" required value="11999999999" /></label>
+                  <label>Senha <input name="password" type="password" required value="123456" /></label>
+                  <label>Nascimento <input name="birthdate" type="date" required value="1995-08-17" /></label>
+                  <button type="submit">Criar passageiro</button>
+                </form>
+
+                <form id="login-form" class="panel-form">
+                  <label>Email <input name="email" type="email" required value="ana@example.com" /></label>
+                  <label>Senha <input name="password" type="password" required value="123456" /></label>
+                  <button type="submit">Entrar na sessao</button>
+                </form>
+              </div>
+            </article>
+
+            <article class="operation-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Motorista</p>
+                  <h3>Perfil e veiculo</h3>
+                </div>
+                <span class="tag">Setup</span>
+              </div>
+              <form id="driver-form" class="panel-form compact">
+                <label>User ID <input name="userId" type="number" data-fill="userId" required /></label>
+                <label>CNH <input name="cnh" required value="12345678999" /></label>
+                <button type="submit">Ativar perfil</button>
+              </form>
+              <form id="vehicle-form" class="panel-form compact">
+                <label>Driver ID <input name="driverId" type="number" data-fill="driverId" required /></label>
+                <label>Placa <input name="plate" required value="ABC1D23" /></label>
+                <label>Modelo <input name="model" required value="Toyota Corolla" /></label>
+                <label>Cor <input name="color" required value="Prata" /></label>
+                <button type="submit">Cadastrar veiculo</button>
+              </form>
+              <form id="driver-rating-form" class="panel-form compact">
+                <label>Driver ID <input name="driverId" type="number" data-fill="driverId" required /></label>
+                <button type="submit">Consultar avaliacao</button>
+              </form>
+            </article>
+
+            <article class="operation-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Simulacao</p>
+                  <h3>Oferta local</h3>
+                </div>
+                <span class="tag">ETA</span>
+              </div>
+              <form id="simulation-form" class="panel-form compact">
+                <label>Latitude <input name="lat" type="number" step="any" value="-23.55052" /></label>
+                <label>Longitude <input name="lng" type="number" step="any" value="-46.633308" /></label>
+                <label>Ou endereco <input name="address" value="Avenida Paulista, 1000" /></label>
+                <button type="submit">Buscar motoristas proximos</button>
+              </form>
+              <div id="simulation-list" class="data-list empty">
+                Nenhuma simulacao executada.
+              </div>
+            </article>
+
+            <article class="operation-card wide ride-stage">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Corrida</p>
+                  <h3>Solicitacao e acompanhamento</h3>
+                </div>
+                <span class="tag">Core flow</span>
+              </div>
+              <div class="two-column">
+                <form id="ride-request-form" class="panel-form">
+                  <label>User ID <input name="userId" type="number" data-fill="userId" required /></label>
+                  <label>Tipo
+                    <select name="rideType">
+                      <option value="moto">Moto</option>
+                      <option value="carro_comum" selected>Carro comum</option>
+                      <option value="carro_luxo">Carro luxo</option>
+                    </select>
+                  </label>
+                  <label>Origem <input name="pickupAddress" required value="Avenida Paulista, 1000" /></label>
+                  <label>Lat origem <input name="pickupLat" type="number" step="any" value="-23.561414" /></label>
+                  <label>Lng origem <input name="pickupLng" type="number" step="any" value="-46.656282" /></label>
+                  <label>Destino <input name="dropoffAddress" required value="Parque Ibirapuera" /></label>
+                  <label>Lat destino <input name="dropoffLat" type="number" step="any" value="-23.587416" /></label>
+                  <label>Lng destino <input name="dropoffLng" type="number" step="any" value="-46.657634" /></label>
+                  <button type="submit">Calcular e criar corrida</button>
+                </form>
+
+                <div class="stack">
+                  <form id="ride-lookup-form" class="panel-form compact">
+                    <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
+                    <button type="submit">Consultar detalhes</button>
+                  </form>
+
+                  <form id="ride-cancel-form" class="panel-form compact">
+                    <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
+                    <label>User ID <input name="userId" type="number" data-fill="userId" required /></label>
+                    <button type="submit">Cancelar corrida</button>
+                  </form>
+
+                  <form id="ride-history-form" class="panel-form compact">
+                    <label>User ID <input name="userId" type="number" data-fill="userId" required /></label>
+                    <button type="submit">Consultar historico</button>
+                  </form>
+
+                  <div id="history-list" class="data-list empty">Nenhum historico consultado.</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="operation-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Pagamento</p>
+                  <h3>Cobranca e liberacao</h3>
+                </div>
+                <span class="tag">Financeiro</span>
+              </div>
+              <form id="payment-create-form" class="panel-form compact">
+                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
+                <label>Valor <input name="amount" type="number" step="0.01" data-fill="ridePrice" required /></label>
+                <label>Metodo
+                  <select name="paymentMethod">
+                    <option value="pix" selected>PIX</option>
+                    <option value="cartao_credito">Cartao de credito</option>
+                  </select>
+                </label>
+                <button type="submit">Gerar pagamento</button>
+              </form>
+              <form id="payment-update-form" class="panel-form compact">
+                <label>Payment ID <input name="paymentId" type="number" data-fill="paymentId" required /></label>
+                <label>Status
+                  <select name="status">
+                    <option value="completed" selected>completed</option>
+                    <option value="pending">pending</option>
+                    <option value="failed">failed</option>
+                  </select>
+                </label>
+                <label>Transacao <input name="transactionId" value="pix_demo_001" /></label>
+                <button type="submit">Confirmar pagamento</button>
+              </form>
+            </article>
+
+            <article class="operation-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Despacho</p>
+                  <h3>Aceite e status</h3>
+                </div>
+                <span class="tag">Tempo real</span>
+              </div>
+              <form id="ride-accept-form" class="panel-form compact">
+                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
+                <label>Driver ID <input name="driverId" type="number" data-fill="driverId" required /></label>
+                <label>Vehicle ID <input name="vehicleId" type="number" data-fill="vehicleId" required /></label>
+                <label>Lat motorista <input name="driverLat" type="number" step="any" value="-23.55052" /></label>
+                <label>Lng motorista <input name="driverLng" type="number" step="any" value="-46.633308" /></label>
+                <button type="submit">Aceitar corrida</button>
+              </form>
+              <form id="ride-status-form" class="panel-form compact">
+                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
+                <label>Status
+                  <select name="status">
+                    <option value="arrived">arrived</option>
+                    <option value="in_progress">in_progress</option>
+                    <option value="completed">completed</option>
+                  </select>
+                </label>
+                <button type="submit">Atualizar status</button>
+              </form>
+            </article>
+
+            <article class="operation-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">Encerramento</p>
+                  <h3>Feedback e reputacao</h3>
+                </div>
+                <span class="tag">Qualidade</span>
+              </div>
+              <form id="ride-rate-form" class="panel-form compact">
+                <label>Ride ID <input name="rideId" type="number" data-fill="rideId" required /></label>
+                <label>User ID <input name="userId" type="number" data-fill="userId" required /></label>
+                <label>Nota <input name="rating" type="number" min="1" max="5" value="5" required /></label>
+                <label>Comentario <textarea name="comment" rows="3">Viagem tranquila e motorista pontual.</textarea></label>
+                <button type="submit">Enviar avaliacao</button>
+              </form>
+            </article>
+          </div>
+        </section>
+
+        <section class="console-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Resposta</p>
+              <h2>Console operacional</h2>
+            </div>
+            <button id="clear-output" class="ghost-button" type="button">Limpar</button>
+          </div>
+          <div id="flash" class="flash hidden"></div>
+          <pre id="output">Pronto para consumir a API local.</pre>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

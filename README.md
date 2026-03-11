@@ -26,24 +26,19 @@ Toda a documentação detalhada da API, incluindo exemplos de requisições (bod
 
 ## 📦 Como Rodar o Projeto Localmente
 
+Este projeto utiliza uma estrutura de Monorepo, contendo a API e o Front-end no mesmo repositório.
+
 1. Clone este repositório:
-   ```bash
-   git clone [https://github.com/V91-1/api-mobilidade-mvp.git](https://github.com/V91-1/api-mobilidade-mvp.git)
-   ```
+   `git clone https://github.com/V91-1/api-mobilidade-mvp.git`
 
 2. Acesse a pasta do projeto:
-   ```bash
-   cd api-mobilidade-mvp
-   ```
+   `cd api-mobilidade-mvp`
 
-3. Instale as dependências necessárias:
-   ```bash
-   npm install
-   ```
+3. Instale as dependências da API:
+   `npm install --prefix api`
 
-4. Inicie o servidor:
-   ```bash
-   node src/server.js
-   ```
+4. Inicie o servidor (o atalho global ligará a API automaticamente):
+   `npm start`
+   *(O servidor rodará em http://localhost:3000)*
 
-O servidor estará rodando em `http://localhost:3000`. O banco de dados (`database.sqlite`) será gerado automaticamente na primeira execução com todas as tabelas necessárias.
+5. **Para testar a interface:** Abra a pasta `frontend` e execute o arquivo `index.html` no seu navegador (recomendado usar a extensão Live Server do VS Code).

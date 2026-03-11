@@ -1,0 +1,21 @@
+{
+  "name": "mobility-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm start --prefix api"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/V91-9/api-mobilidade-mvp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/V91-9/api-mobilidade-mvp/issues"
+  },
+  "homepage": "https://github.com/V91-9/api-mobilidade-mvp#readme"
+}

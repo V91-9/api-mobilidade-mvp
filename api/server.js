@@ -1,4 +1,6 @@
 const express = require("express");
+const cors = require("cors");
+const app = express();
 const crypto = require("crypto");
 const db = require("./src/database/database");
 const userController = require("./src/controllers/userController");
@@ -7,7 +9,7 @@ const driverController = require("./src/controllers/driverController");
 const paymentController = require("./src/controllers/paymentController");
 const utils = require("./src/utils/utils");
 
-const app = express();
+app.use(cors());
 app.use(express.json());
 
 // 1. Rota para Criar Conta (Cadastro)
