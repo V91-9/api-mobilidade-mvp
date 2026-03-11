@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const crypto = require("crypto");
 const db = require("./src/database/database");
 const userController = require("./src/controllers/userController");
@@ -9,6 +10,7 @@ const utils = require("./src/utils/utils");
 
 const app = express();
 app.use(express.json());
+app.use(express.static(__dirname));
 
 // 1. Rota para Criar Conta (Cadastro)
 app.post('/register', async (req, res) => {
@@ -459,6 +461,10 @@ app.get('/simulation/nearby-drivers', async (req, res) => {
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
+});
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // Liga o servidor na porta 3000
