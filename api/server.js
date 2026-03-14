@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const app = express();
 const crypto = require("crypto");
 const db = require("./src/database/database");
@@ -11,6 +12,7 @@ const utils = require("./src/utils/utils");
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "..", "frontend")));
 
 // 1. Rota para Criar Conta (Cadastro)
 app.post('/register', async (req, res) => {
